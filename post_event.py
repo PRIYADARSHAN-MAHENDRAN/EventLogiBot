@@ -54,7 +54,7 @@ def parse_flexible_date(date_str):
 data = sheet.get_all_values()
 todays_event_link = None
 for row in data:
-    if len(row) >= 13:
+    if len(row) >= 13 and row[12].strip().startswith("https://truckersmp.com/events"):
         raw_date = row[2].strip()
         print(f"Raw date from sheet: {raw_date}")
         event_date = parse_flexible_date(raw_date)
@@ -63,9 +63,6 @@ for row in data:
         if event_date:
             try:
                 event_url = row[12].strip()
-                if "truckersmp.com/events" not in event_url:
-                    continue
-
                 event_id_candidate = event_url.strip('/').split('/')[-1]
                 event_api = requests.get(f"https://api.truckersmp.com/v2/events/{event_id_candidate}")
                 if event_api.status_code == 200:
@@ -82,7 +79,6 @@ for row in data:
                     print(f"Failed to fetch event details for ID {event_id_candidate}")
             except Exception as e:
                 print(f"Error checking API date match: {e}")
-
 
 if not todays_event_link:
     print("No event found for today.")
