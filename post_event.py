@@ -76,7 +76,7 @@ if event_id not in public_event_ids:
 # Safe to fetch full event details
 # Get event details from TruckersMP API
 print(f"Event ID: {event_id}")
-response = requests.get(f"https://api.truckersmp.com/v2/event/{event_id}")
+response = requests.get(f"https://api.truckersmp.com/v2/events/{event_id}")
 
 if response.status_code == 404:
     print(f"TruckersMP Event with ID {event_id} not found. It may have been deleted.")
