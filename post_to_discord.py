@@ -10,10 +10,12 @@ SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 SHEET_ID = os.environ["SHEET_ID"]
 DISCORD_WEBHOOK = os.environ["DISCORD_WEBHOOK"]
 TRUCKERSMP_API_BASE = "https://api.truckersmp.com/v2/event/"
-SERVICE_ACCOUNT_FILE = "truckersmp-events-ef7e395df282.json"
+creds_dict = json.loads(os.environ["GOOGLE_CREDENTIALS"])
 
 # === AUTH GOOGLE SHEETS ===
-creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+
+creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
+
 client = gspread.authorize(creds)
 
 # === GET TODAY'S DATE ===
