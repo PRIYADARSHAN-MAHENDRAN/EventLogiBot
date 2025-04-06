@@ -87,6 +87,23 @@ try:
 except Exception as e:
     print(f"❌ Failed to parse public event list: {e}")
     exit(1)
+# === Helpers ===
+def utc_to_ist(utc_str):
+    try:
+        dt_utc = datetime.strptime(utc_str, "%Y-%m-%d %H:%M:%S")
+        dt_ist = dt_utc + timedelta(hours=5, minutes=30)
+        return dt_ist.strftime("%H:%M")
+    except Exception as e:
+        print(f"Error converting UTC to IST: {e}")
+        return "N/A"
+
+def format_date(utc_str):
+    try:
+        dt = datetime.strptime(utc_str, "%Y-%m-%d %H:%M:%S")
+        return dt.strftime("%d-%m-%Y")
+    except Exception as e:
+        print(f"Error formatting date: {e}")
+        return "N/A"
 
 # === Loop Through All Event Links ===
 for event_link in event_links_today:
