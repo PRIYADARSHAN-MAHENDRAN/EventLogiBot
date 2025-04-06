@@ -54,7 +54,17 @@ if public_events_res.status_code != 200:
     print("Failed to fetch public events.")
     exit(1)
 
-public_event_ids = [str(event["id"]) for event in public_events_res.json().get("response", [])]
+try:
+    public_json = public_events_res.json()
+    if not isinstance(public_json.get("response"), list):
+        print("Unexpected API format for public events:")
+        print(public_json)
+        exit(1)
+    public_event_ids = [str(event["id"]) for event in public_json["response"]]
+except Exception as e:
+    print(f"Failed to parse public event list: {e}")
+    print(public_events_res.text)
+    exit(1)
 
 if event_id not in public_event_ids:
     print(f"TruckersMP Event with ID {event_id} not found in public list. It may be private or unapproved.")
