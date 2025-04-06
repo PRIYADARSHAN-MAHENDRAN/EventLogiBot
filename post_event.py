@@ -8,8 +8,6 @@ from pytz import timezone
 
 # Load credentials and config
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-
-# Authenticate using uploaded JSON file
 credentials = ServiceAccountCredentials.from_json_keyfile_name('truckersmp-events-ef7e395df282.json', scope)
 client = gspread.authorize(credentials)
 
@@ -48,19 +46,26 @@ if not todays_event_link:
 
 # Extract event ID from link
 event_id = todays_event_link.strip('/').split('/')[-1]
-
-# Get event details from TruckersMP API
 print(f"Event ID: {event_id}")
 
-response = requests.get(f"https://api.truckersmp.com/v2/event/{event_id}")
-if response.status_code == 404:
-    print(f"TruckersMP Event with ID {event_id} not found. It may have been deleted.")
+# Validate event ID exists in public event list
+public_events_res = requests.get("https://api.truckersmp.com/v2/events")
+if public_events_res.status_code != 200:
+    print("Failed to fetch public events.")
+    exit(1)
+
+public_event_ids = [str(event["id"]) for event in public_events_res.json().get("response", [])]
+
+if event_id not in public_event_ids:
+    print(f"TruckersMP Event with ID {event_id} not found in public list. It may be private or unapproved.")
     exit(0)
-elif response.status_code != 200:
+
+# Safe to fetch full event details
+response = requests.get(f"https://api.truckersmp.com/v2/event/{event_id}")
+if response.status_code != 200:
     print(f"Failed to fetch event data from TruckersMP API. Status code: {response.status_code}")
     print(response.text)
     exit(1)
-
 
 event_data = response.json().get('response', {})
 
