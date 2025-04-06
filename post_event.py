@@ -56,12 +56,12 @@ for sheet in worksheets:
     data = sheet.get_all_values()
     
     for row in data:
-        if len(row) >= 13 and row[12].strip().startswith("https://truckersmp.com/events"):
+        if len(row) >= 13 and row[11].strip().startswith("https://truckersmp.com/events"):
             raw_date = row[2].strip()
             event_date = parse_flexible_date(raw_date)
 
             if event_date == today:
-                event_url = row[12].strip()
+                event_url = row[11].strip()
                 print(f"✅ Found event for today in '{sheet.title}': {event_url}")
                 event_links_today.append(event_url)
 
