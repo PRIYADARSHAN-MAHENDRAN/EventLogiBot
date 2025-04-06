@@ -165,7 +165,7 @@ for event_link in event_links_today:
             {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
             {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
             {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True}
-        ]
+        ],
         "footer": {
             "text": "by TNL | PRIYADARSHAN"
         }
