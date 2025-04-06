@@ -9,8 +9,8 @@ from pytz import timezone
 # === Configuration ===
 
 # Replace with your actual Discord Role ID
-ROLE_ID = "1356018983496843294"
-DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1358492482580779119/o4-NQuKr1zsUb9rUZsB_EnlYNiZwb_N8uXNfxfIRiGsdR8kh4CoKliIlSb8qot-F0HHO'
+ROLE_ID = "1335290367347658762"
+DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1349764291859054623/WCmkpgMVX_MkVlpNyBnC_2fycbgDnUNdzMTmZhCdTASythWRXm_oa0UuF1U8Y4SBIYWg'
 SHEET_ID = '1xcTUTFmwirTCIAseDtgr0ev7cHJq8FAuGI7wHDa_yMg'
 
 # === Authenticate with Google Sheets ===
@@ -166,6 +166,9 @@ for event_link in event_links_today:
             {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
             {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True}
         ]
+        "footer": {
+            "text": "by TNL | PRIYADARSHAN"
+        }
     }
 
     payload = {
