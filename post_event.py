@@ -3,26 +3,18 @@ import gspread
 import requests
 import json
 from oauth2client.service_account import ServiceAccountCredentials
-
 from datetime import datetime
-from google.oauth2.service_account import Credentials
 from pytz import timezone
 
 # Load credentials and config
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 
+# Authenticate using uploaded JSON file
 credentials = ServiceAccountCredentials.from_json_keyfile_name('truckersmp-events-ef7e395df282.json', scope)
+client = gspread.authorize(credentials)
 
 SHEET_ID = '1jTadn8TtRP4ip5ayN-UClntNmKDTGY70wdPgo7I7lRY'
-
 DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1358492482580779119/o4-NQuKr1zsUb9rUZsB_EnlYNiZwb_N8uXNfxfIRiGsdR8kh4CoKliIlSb8qot-F0HHO'
-
-
-# Parse the service account key
-import json
-creds_dict = json.loads(credentials_info)
-creds = Credentials.from_service_account_info(creds_dict, scopes=["https://www.googleapis.com/auth/spreadsheets.readonly"])
-client = gspread.authorize(creds)
 
 # Get current month name and today's date in IST
 tz = timezone('Asia/Kolkata')
