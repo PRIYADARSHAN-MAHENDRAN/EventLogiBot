@@ -3,43 +3,40 @@ import gspread
 import requests
 import json
 from oauth2client.service_account import ServiceAccountCredentials
-from datetime import datetime
-from pytz import timezone, utc
-from datetime import timedelta
-# === Config ===
-ROLE_ID = "1356018983496843294"  # Replace with your actual Discord role ID
-content = f"<@&{ROLE_ID}>"
+from datetime import datetime, timedelta
+from pytz import timezone
+
+# === Configuration ===
+
+# Replace with your actual Discord Role ID
+ROLE_ID = "1356018983496843294"
+DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1358492482580779119/o4-NQuKr1zsUb9rUZsB_EnlYNiZwb_N8uXNfxfIRiGsdR8kh4CoKliIlSb8qot-F0HHO'
+SHEET_ID = '1jTadn8TtRP4ip5ayN-UClntNmKDTGY70wdPgo7I7lRY'
+
+# === Authenticate with Google Sheets ===
 
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 credentials = ServiceAccountCredentials.from_json_keyfile_name('truckersmp-events-ef7e395df282.json', scope)
 client = gspread.authorize(credentials)
 
-SHEET_ID = '1jTadn8TtRP4ip5ayN-UClntNmKDTGY70wdPgo7I7lRY'
-DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1358492482580779119/o4-NQuKr1zsUb9rUZsB_EnlYNiZwb_N8uXNfxfIRiGsdR8kh4CoKliIlSb8qot-F0HHO'
-
 # === Time Setup ===
+
 tz_ist = timezone('Asia/Kolkata')
 today = datetime.now(tz_ist).date()
 month_name = today.strftime("%B %Y")  # e.g., "April 2025"
 
-# === Load Sheet & All Worksheets ===
-spreadsheet = client.open_by_key(SHEET_ID)
-worksheets = spreadsheet.worksheets()
-
-todays_event_link = None
+# === Parse Date Formats from Google Sheet ===
 
 def parse_flexible_date(date_str):
     from datetime import datetime
-
     date_formats = [
         "%A, %B %d, %Y %H.%M",  # Saturday, April 05, 2025 22.30
         "%a, %b %d, %Y %H.%M",  # Wed, Apr 2, 2025 22.30
         "%A, %B %d, %Y",        # Saturday, April 05, 2025
         "%a, %b %d, %Y",        # Wed, Apr 2, 2025
         "%d/%m/%Y",             # 26/4/2025
-        "%d-%m-%Y"              # fallback to your original format
+        "%d-%m-%Y"              # 26-04-2025
     ]
-
     for fmt in date_formats:
         try:
             return datetime.strptime(date_str.strip(), fmt).date()
@@ -47,7 +44,11 @@ def parse_flexible_date(date_str):
             continue
     return None  # If all formats fail
 
-# === Loop through all sheets and rows ===
+# === Step 1: Get Today's Event Link from Google Sheet ===
+
+spreadsheet = client.open_by_key(SHEET_ID)
+worksheets = spreadsheet.worksheets()
+
 event_links_today = []
 
 for sheet in worksheets:
@@ -68,8 +69,8 @@ if not event_links_today:
     print("❌ No events found for today.")
     exit(0)
 
-# === Extract Event ID ===
-# === Get Public Event IDs ===
+# === Step 2: Get List of Public Event IDs from TruckersMP ===
+
 public_events_res = requests.get("https://api.truckersmp.com/v2/events")
 if public_events_res.status_code != 200:
     print("❌ Failed to fetch public events.")
@@ -78,16 +79,17 @@ if public_events_res.status_code != 200:
 try:
     public_json = public_events_res.json()
     response_data = public_json.get("response", {})
-    public_event_ids = []
-
-    for category in response_data.values():
-        if isinstance(category, list):
-            for event in category:
-                public_event_ids.append(str(event["id"]))
+    public_event_ids = [
+        str(event["id"])
+        for category in response_data.values() if isinstance(category, list)
+        for event in category
+    ]
 except Exception as e:
     print(f"❌ Failed to parse public event list: {e}")
     exit(1)
+
 # === Helpers ===
+
 def utc_to_ist(utc_str):
     try:
         dt_utc = datetime.strptime(utc_str, "%Y-%m-%d %H:%M:%S")
@@ -104,7 +106,9 @@ def format_date(utc_str):
     except Exception as e:
         print(f"Error formatting date: {e}")
         return "N/A"
-# === DLC ID to Name Mapping ===
+
+# === DLC Mapping (TruckersMP API returns ID numbers) ===
+
 DLC_ID_MAP = {
     304212: "Going East!",
     304213: "Scandinavia",
@@ -123,18 +127,16 @@ DLC_ID_MAP = {
     645630: "Schwarzmüller Trailer Pack",
 }
 
-
 def get_dlc_names(dlc_ids):
     if not dlc_ids:
         return "Base Map"
-    
-    # Convert all IDs to integers before lookup
     return ", ".join(DLC_ID_MAP.get(int(dlc_id), f"Unknown ({dlc_id})") for dlc_id in dlc_ids)
 
-# === Loop Through All Event Links ===
+# === Step 3: Loop Through and Post Events to Discord ===
+
 for event_link in event_links_today:
     event_id = event_link.strip('/').split('/')[-1]
-    
+
     if event_id not in public_event_ids:
         print(f"⚠️ Event {event_id} is not public. Skipping.")
         continue
@@ -146,7 +148,8 @@ for event_link in event_links_today:
 
     event_data = response.json().get('response', {})
 
-    # === Prepare Embed ===
+    # === Prepare Discord Embed ===
+
     embed = {
         "title": f"📅 {event_data.get('name', 'TruckersMP Event')}",
         "url": event_link,
@@ -162,7 +165,6 @@ for event_link in event_links_today:
             {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
             {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
             {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True}
-
         ]
     }
 
