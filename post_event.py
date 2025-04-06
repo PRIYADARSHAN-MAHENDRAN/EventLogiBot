@@ -106,31 +106,23 @@ def format_date(utc_str):
         return "N/A"
 # === DLC ID to Name Mapping ===
 DLC_ID_MAP = {
-    1: "Going East!",
-    2: "Scandinavia",
-    3: "Vive la France!",
-    4: "Italia",
-    5: "Beyond the Baltic Sea",
-    6: "Road to the Black Sea",
-    7: "Iberia",
-    8: "West Balkans",
-    9: "Heart of Russia",
-    10: "High Power Cargo Pack",
-    11: "Heavy Cargo Pack",
-    12: "Special Transport",
-    13: "Krone Trailer Pack",
-    14: "Schwarzmüller Trailer Pack",
-    15: "Cabin Accessories",
-    16: "Wheel Tuning Pack",
     304212: "Going East!",
     304213: "Scandinavia",
-    304214: "Vive la France!",
-    304215: "Italia",
-    304216: "Beyond the Baltic Sea",
-    304217: "Road to the Black Sea",
-    304218: "Iberia",
-    304219: "West Balkans",
+    304215: "Vive la France!",
+    304216: "Italia",
+    304217: "Beyond the Baltic Sea",
+    304218: "Road to the Black Sea",
+    304219: "Iberia",
+    304220: "West Balkans",
+    461910: "Heavy Cargo Pack",
+    558244: "Special Transport",
+    258666: "High Power Cargo Pack",
+    620610: "Krone Trailer Pack",
+    388470: "Cabin Accessories",
+    297721: "Wheel Tuning Pack",
+    645630: "Schwarzmüller Trailer Pack",
 }
+
 
 def get_dlc_names(dlc_ids):
     if not dlc_ids:
