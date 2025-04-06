@@ -59,7 +59,6 @@ try:
     response_data = public_json.get("response", {})
     public_event_ids = []
 
-# Loop through featured, upcoming, today etc.
     for category in response_data.values():
         if isinstance(category, list):
             for event in category:
