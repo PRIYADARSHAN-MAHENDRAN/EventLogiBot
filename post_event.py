@@ -55,19 +55,31 @@ data = sheet.get_all_values()
 todays_event_link = None
 for row in data:
     if len(row) >= 13:
-        print("Raw date from sheet:", row[2])  # Debug print
-        event_date = parse_flexible_date(row[2])
-        print("Parsed event date:", event_date)  # Debug print
+        raw_date = row[2].strip()
+        print(f"Raw date from sheet: {raw_date}")
+        event_date = parse_flexible_date(raw_date)
+        print(f"Parsed sheet date: {event_date}")
+
         if event_date:
             try:
-                event_api = requests.get(f"https://api.truckersmp.com/v2/events/{row[12].strip('/').split('/')[-1]}")
+                event_url = row[12].strip()
+                if "truckersmp.com/events" not in event_url:
+                    continue
+
+                event_id_candidate = event_url.strip('/').split('/')[-1]
+                event_api = requests.get(f"https://api.truckersmp.com/v2/events/{event_id_candidate}")
                 if event_api.status_code == 200:
                     event_json = event_api.json().get("response", {})
                     utc_time = datetime.strptime(event_json.get("start_at", ""), "%Y-%m-%d %H:%M:%S")
                     ist_time = utc_time + timedelta(hours=5, minutes=30)
+                    print(f"IST event start time: {ist_time} | Date: {ist_time.date()} | Today: {today}")
+
                     if ist_time.date() == today:
-                        todays_event_link = row[12]
+                        print("✅ Matching event found for today!")
+                        todays_event_link = event_url
                         break
+                else:
+                    print(f"Failed to fetch event details for ID {event_id_candidate}")
             except Exception as e:
                 print(f"Error checking API date match: {e}")
 
