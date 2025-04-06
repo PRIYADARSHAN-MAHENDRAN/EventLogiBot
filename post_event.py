@@ -59,17 +59,17 @@ for row in data:
         event_date = parse_flexible_date(row[2])
         print("Parsed event date:", event_date)  # Debug print
         if event_date:
-        try:
-            event_api = requests.get(f"https://api.truckersmp.com/v2/events/{row[12].strip('/').split('/')[-1]}")
-            if event_api.status_code == 200:
-                event_json = event_api.json().get("response", {})
-                utc_time = datetime.strptime(event_json.get("start_at", ""), "%Y-%m-%d %H:%M:%S")
-                ist_time = utc_time + timedelta(hours=5, minutes=30)
-                if ist_time.date() == today:
-                    todays_event_link = row[12]
-                    break
-        except Exception as e:
-            print(f"Error checking API date match: {e}")
+            try:
+                event_api = requests.get(f"https://api.truckersmp.com/v2/events/{row[12].strip('/').split('/')[-1]}")
+                if event_api.status_code == 200:
+                    event_json = event_api.json().get("response", {})
+                    utc_time = datetime.strptime(event_json.get("start_at", ""), "%Y-%m-%d %H:%M:%S")
+                    ist_time = utc_time + timedelta(hours=5, minutes=30)
+                    if ist_time.date() == today:
+                        todays_event_link = row[12]
+                        break
+            except Exception as e:
+                print(f"Error checking API date match: {e}")
 
 
 if not todays_event_link:
