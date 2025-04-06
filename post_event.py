@@ -56,11 +56,15 @@ if public_events_res.status_code != 200:
 
 try:
     public_json = public_events_res.json()
-    if not isinstance(public_json.get("response"), list):
-        print("Unexpected API format for public events:")
-        print(public_json)
-        exit(1)
-    public_event_ids = [str(event["id"]) for event in public_json["response"]]
+    response_data = public_json.get("response", {})
+    public_event_ids = []
+
+# Loop through featured, upcoming, today etc.
+    for category in response_data.values():
+        if isinstance(category, list):
+            for event in category:
+                public_event_ids.append(str(event["id"]))
+
 except Exception as e:
     print(f"Failed to parse public event list: {e}")
     print(public_events_res.text)
