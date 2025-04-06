@@ -5,7 +5,7 @@ import json
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 from pytz import timezone, utc
-
+from datetime import timedelta
 # === Config ===
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 credentials = ServiceAccountCredentials.from_json_keyfile_name('truckersmp-events-ef7e395df282.json', scope)
@@ -82,23 +82,24 @@ elif response.status_code != 200:
 event_data = response.json().get('response', {})
 
 # === UTC to IST Converter ===
-def utc_to_ist(iso_time_str):
-    try:
-        dt_utc = datetime.strptime(iso_time_str, "%Y-%m-%dT%H:%M:%S%z")
-    except ValueError:
-        # fallback if missing timezone
-        dt_utc = datetime.strptime(iso_time_str, "%Y-%m-%dT%H:%M:%S")
-        dt_utc = utc.localize(dt_utc)
-    dt_ist = dt_utc.astimezone(tz_ist)
-    return dt_ist.strftime("%H:%M")
 
-def format_date(iso_time_str):
+
+def utc_to_ist(utc_str):
     try:
-        dt = datetime.strptime(iso_time_str, "%Y-%m-%dT%H:%M:%S%z")
-    except ValueError:
-        dt = datetime.strptime(iso_time_str, "%Y-%m-%dT%H:%M:%S")
-        dt = utc.localize(dt)
-    return dt.strftime("%d-%m-%Y")
+        dt_utc = datetime.strptime(utc_str, "%Y-%m-%d %H:%M:%S")
+        dt_ist = dt_utc + timedelta(hours=5, minutes=30)
+        return dt_ist.strftime("%H:%M")
+    except Exception as e:
+        print(f"Error converting UTC to IST: {e}")
+        return "N/A"
+
+def format_date(utc_str):
+    try:
+        dt = datetime.strptime(utc_str, "%Y-%m-%d %H:%M:%S")
+        return dt.strftime("%d-%m-%Y")
+    except Exception as e:
+        print(f"Error formatting date: {e}")
+        return "N/A"
 
 # === Prepare Fancy Embed ===
 embed = {
