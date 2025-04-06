@@ -6,6 +6,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 from pytz import timezone, utc
 from datetime import timedelta
+from dateutil import parser
 # === Config ===
 ROLE_ID = "1356018983496843294"  # Replace with your actual Discord role ID
 content = f"<@&{ROLE_ID}>"
@@ -30,17 +31,36 @@ except gspread.exceptions.WorksheetNotFound:
     exit(0)
 
 # === Find Today's Event ===
+
+
+def parse_flexible_date(date_str):
+    formats = [
+        "%A, %B %d, %Y %H.%M",  # Saturday, April 05, 2025 22.30
+        "%a, %b %d, %Y %H.%M",  # Wed, Apr 2, 2025 22.30
+        "%A, %B %d, %Y",        # Saturday, April 05, 2025
+        "%a, %b %d, %Y",        # Wed, Apr 2, 2025
+        "%d/%m/%Y",             # 26/4/2025
+        "%d-%m-%Y"              # fallback to your original format
+    ]
+    for fmt in formats:
+        try:
+            return datetime.strptime(date_str.strip(), fmt).date()
+        except ValueError:
+            continue
+    try:
+        return parser.parse(date_str).date()  # ultimate fallback
+    except Exception:
+        return None
+
 data = sheet.get_all_values()
+todays_event_link = None
 todays_event_link = None
 for row in data:
     if len(row) >= 13:
-        try:
-            event_date = datetime.strptime(row[2], "%d-%m-%Y").date()
-            if event_date == today:
-                todays_event_link = row[12]
-                break
-        except Exception:
-            continue
+        event_date = parse_flexible_date(row[2])
+        if event_date and event_date == today:
+            todays_event_link = row[12]
+            break
 
 if not todays_event_link:
     print("No event found for today.")
