@@ -1,35 +1,70 @@
+import gspread
+from datetime import datetime
 import requests
 import os
+import json
+from google.oauth2.service_account import Credentials
 
-# Config
-VTC_ID = os.environ.get('VTC_ID')  # Set in GitHub Secrets
-WEBHOOK_URL = os.environ.get('DISCORD_WEBHOOK')
+# === CONFIG ===
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+SHEET_ID = os.environ["SHEET_ID"]
+DISCORD_WEBHOOK = os.environ["DISCORD_WEBHOOK"]
+TRUCKERSMP_API_BASE = "https://api.truckersmp.com/v2/event/"
+SERVICE_ACCOUNT_FILE = "truckersmp-events-ef7e395df282.json"
 
-# API request
-url = f"https://api.truckersmp.com/v2/vtc/{VTC_ID}/events/attending"
-response = requests.get(url)
-data = response.json()
+# === AUTH GOOGLE SHEETS ===
+creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+client = gspread.authorize(creds)
 
-# Handle no events
-if not data["response"]:
-    message = {
-        "content": f"No upcoming events found for VTC ID {VTC_ID}."
-    }
-    requests.post(WEBHOOK_URL, json=message)
-    exit()
+# === GET TODAY'S DATE ===
+today_str = datetime.utcnow().strftime("%Y-%m-%d")
 
-# Build message
-for event in data["response"][:3]:  # Limit to 3
-    embed = {
-        "title": event["name"],
-        "url": f"https://truckersmp.com/events/{event['id']}",
-        "description": f"**Game:** {event['game']}\n**Server:** {event['server']}\n**Start:** {event['start_at']} UTC",
-        "color": 7506394  # Blue-ish
-    }
+# === READ ALL MONTH TABS ===
+sheet = client.open_by_key(SHEET_ID)
+worksheets = sheet.worksheets()
 
-    payload = {
-        "username": "TruckersMP Events Bot",
-        "embeds": [embed]
-    }
+event_found = False
 
-    requests.post(WEBHOOK_URL, json=payload)
+for ws in worksheets:
+    data = ws.get_all_records()
+    for row in data:
+        date = str(row.get("Date", "")).strip()
+        link = str(row.get("Event Link", "")).strip()
+
+        if not date or not link:
+            continue
+
+        try:
+            event_date = datetime.strptime(date, "%Y-%m-%d").strftime("%Y-%m-%d")
+            if event_date == today_str:
+                # === GET EVENT ID FROM URL ===
+                event_id = link.rstrip("/").split("/")[-1]
+                response = requests.get(f"{TRUCKERSMP_API_BASE}{event_id}")
+                if response.status_code == 200:
+                    event = response.json().get("response", {})
+
+                    embed = {
+                        "title": event.get("name"),
+                        "description": f"**Time (UTC):** {event.get('start_at')}\n"
+                                       f"**Game:** {event.get('game')}\n"
+                                       f"**Server:** {event.get('server', {}).get('name')}\n"
+                                       f"**Departure:** {event.get('departure')}\n"
+                                       f"**Arrival:** {event.get('arrival')}\n"
+                                       f"**Meetup Location:** {event.get('meetup')}\n"
+                                       f"**Start Location:** {event.get('start')}\n"
+                                       f"**VTC:** [{event.get('vtc', {}).get('name')}]({event.get('vtc', {}).get('url')})\n"
+                                       f"**Link:** [View Event]({link})",
+                        "color": 5814783
+                    }
+
+                    requests.post(DISCORD_WEBHOOK, json={"embeds": [embed]})
+                    print("✅ Posted to Discord.")
+                    event_found = True
+                    break
+        except Exception as e:
+            print(f"Error processing row: {e}")
+    if event_found:
+        break
+
+if not event_found:
+    print("❌ No event found for today.")
