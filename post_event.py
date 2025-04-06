@@ -64,8 +64,8 @@ for sheet in worksheets:
                 print(f"✅ Found event for today in '{sheet.title}': {event_url}")
                 event_links_today.append(event_url)
 
-if not todays_event_link:
-    print("No event found for today.")
+if not event_links_today:
+    print("❌ No events found for today.")
     exit(0)
 
 # === Extract Event ID ===
