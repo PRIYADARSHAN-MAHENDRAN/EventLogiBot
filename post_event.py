@@ -73,9 +73,7 @@ if event_id not in public_event_ids:
     print(f"TruckersMP Event with ID {event_id} not found in public list. It may be private or unapproved.")
     exit(0)
 
-# Safe to fetch full event details
-# Get event details from TruckersMP API
-print(f"Event ID: {event_id}")
+# Fetch full event details
 response = requests.get(f"https://api.truckersmp.com/v2/events/{event_id}")
 
 if response.status_code == 404:
@@ -86,9 +84,13 @@ elif response.status_code != 200:
     print(response.text)
     exit(1)
 
-
-
 event_data = response.json().get('response', {})
+
+# Safely access nested fields
+server = event_data.get("server", {}).get("name", "N/A")
+departure = event_data.get("departure", {}).get("city", "N/A")
+arrival = event_data.get("arrival", {}).get("city", "N/A")
+meetup_location = event_data.get("departure", {}).get("location", "N/A")
 
 # Prepare message for Discord
 embed = {
@@ -96,14 +98,20 @@ embed = {
     "url": todays_event_link,
     "fields": [
         {"name": "Game", "value": event_data.get("game", "N/A"), "inline": True},
-        {"name": "Server", "value": event_data.get("server", "N/A"), "inline": True},
+        {"name": "Server", "value": server, "inline": True},
         {"name": "Start Time (UTC)", "value": event_data.get("start_at", "N/A"), "inline": False},
-        {"name": "Departure", "value": event_data.get("departure", "N/A"), "inline": True},
-        {"name": "Arrival", "value": event_data.get("arrival", "N/A"), "inline": True},
-        {"name": "Meetup Location", "value": event_data.get("meetup", "N/A"), "inline": False},
+        {"name": "Departure", "value": departure, "inline": True},
+        {"name": "Arrival", "value": arrival, "inline": True},
+        {"name": "Meetup Location", "value": meetup_location, "inline": False},
     ]
 }
 
-# Post to Discord
-requests.post(DISCORD_WEBHOOK, json={"embeds": [embed]})
-print("Posted to Discord!")
+# Add fallback content and send
+payload = {
+    "content": f"🚛 **Today's TruckersMP Event**: {event_data.get('name', 'Unnamed Event')}",
+    "embeds": [embed]
+}
+
+res = requests.post(DISCORD_WEBHOOK, json=payload)
+print(f"Posted to Discord! Status: {res.status_code}")
+print(res.text)
