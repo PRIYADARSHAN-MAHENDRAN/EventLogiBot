@@ -109,9 +109,9 @@ embed = {
     "fields": [
         {"name": "🛠 VTC", "value": event_data.get("vtc", {}).get("name", "Unknown VTC"), "inline": True},
         {"name": "📅 Date", "value": format_date(event_data.get("start_at", "")), "inline": True},
-        {"name": "⏰ Meetup (UTC)", "value": event_data.get("meetup_at", "").split("T")[1][:5], "inline": True},
+        {"name": "⏰ Meetup (UTC)", "value": event_data.get("meetup_at", "").split(" ")[1][:5], "inline": True},
         {"name": "⏰ Meetup (IST)", "value": utc_to_ist(event_data.get("meetup_at", "")), "inline": True},
-        {"name": "🚀 Start (UTC)", "value": event_data.get("start_at", "").split("T")[1][:5], "inline": True},
+        {"name": "🚀 Start (UTC)", "value": event_data.get("start_at", "").split(" ")[1][:5], "inline": True},
         {"name": "🚀 Start (IST)", "value": utc_to_ist(event_data.get("start_at", "")), "inline": True},
         {"name": "🖥 Server", "value": event_data.get("server", "Unknown"), "inline": True},
         {"name": "🚏 Departure", "value": event_data.get("departure", "Unknown"), "inline": True},
