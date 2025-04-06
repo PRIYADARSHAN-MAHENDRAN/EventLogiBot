@@ -7,6 +7,9 @@ from datetime import datetime
 from pytz import timezone, utc
 from datetime import timedelta
 # === Config ===
+ROLE_ID = "1356018983496843294"  # Replace with your actual Discord role ID
+content = f"<@&{ROLE_ID}>"
+
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 credentials = ServiceAccountCredentials.from_json_keyfile_name('truckersmp-events-ef7e395df282.json', scope)
 client = gspread.authorize(credentials)
@@ -122,7 +125,13 @@ embed = {
 
 
 # === Send to Discord ===
-resp = requests.post(DISCORD_WEBHOOK, json={"embeds": [embed]})
+payload = {
+    "content": f"<@&{ROLE_ID}>",  # This will mention the role
+    "embeds": [embed]
+}
+
+resp = requests.post(DISCORD_WEBHOOK, json=payload)
+
 if resp.status_code in [200, 204]:
     print("✅ Event successfully posted to Discord!")
 else:
