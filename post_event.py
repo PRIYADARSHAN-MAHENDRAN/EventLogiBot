@@ -6,7 +6,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
 from pytz import timezone, utc
 from datetime import timedelta
-from dateutil import parser
 # === Config ===
 ROLE_ID = "1356018983496843294"  # Replace with your actual Discord role ID
 content = f"<@&{ROLE_ID}>"
@@ -34,7 +33,9 @@ except gspread.exceptions.WorksheetNotFound:
 
 
 def parse_flexible_date(date_str):
-    formats = [
+    from datetime import datetime
+
+    date_formats = [
         "%A, %B %d, %Y %H.%M",  # Saturday, April 05, 2025 22.30
         "%a, %b %d, %Y %H.%M",  # Wed, Apr 2, 2025 22.30
         "%A, %B %d, %Y",        # Saturday, April 05, 2025
@@ -42,18 +43,15 @@ def parse_flexible_date(date_str):
         "%d/%m/%Y",             # 26/4/2025
         "%d-%m-%Y"              # fallback to your original format
     ]
-    for fmt in formats:
+
+    for fmt in date_formats:
         try:
             return datetime.strptime(date_str.strip(), fmt).date()
         except ValueError:
             continue
-    try:
-        return parser.parse(date_str).date()  # ultimate fallback
-    except Exception:
-        return None
+    return None  # If all formats fail
 
 data = sheet.get_all_values()
-todays_event_link = None
 todays_event_link = None
 for row in data:
     if len(row) >= 13:
