@@ -48,37 +48,31 @@ def parse_flexible_date(date_str):
     return None  # If all formats fail
 
 # === Loop through all sheets and rows ===
+event_links_today = []
+
 for sheet in worksheets:
-    print(f"Checking sheet: {sheet.title}")
+    print(f"🔍 Checking sheet: {sheet.title}")
     data = sheet.get_all_values()
     
     for row in data:
         if len(row) >= 13 and row[12].strip().startswith("https://truckersmp.com/events"):
             raw_date = row[2].strip()
-            print(f"Raw date from sheet: {raw_date}")
             event_date = parse_flexible_date(raw_date)
-            print(f"Parsed sheet date: {event_date}")
 
             if event_date == today:
                 event_url = row[12].strip()
-                todays_event_link = event_url
-                print(f"✅ Matching event found for today in sheet '{sheet.title}'!")
-                break
-    if todays_event_link:
-        break  # Stop looping other sheets once one match is found
+                print(f"✅ Found event for today in '{sheet.title}': {event_url}")
+                event_links_today.append(event_url)
 
 if not todays_event_link:
     print("No event found for today.")
     exit(0)
 
 # === Extract Event ID ===
-event_id = todays_event_link.strip('/').split('/')[-1]
-print(f"Event ID: {event_id}")
-
-# === Check Event Public ===
+# === Get Public Event IDs ===
 public_events_res = requests.get("https://api.truckersmp.com/v2/events")
 if public_events_res.status_code != 200:
-    print("Failed to fetch public events.")
+    print("❌ Failed to fetch public events.")
     exit(1)
 
 try:
@@ -91,74 +85,52 @@ try:
             for event in category:
                 public_event_ids.append(str(event["id"]))
 except Exception as e:
-    print(f"Failed to parse public event list: {e}")
+    print(f"❌ Failed to parse public event list: {e}")
     exit(1)
 
-if event_id not in public_event_ids:
-    print(f"TruckersMP Event with ID {event_id} not found in public list. It may be private or unapproved.")
-    exit(0)
+# === Loop Through All Event Links ===
+for event_link in event_links_today:
+    event_id = event_link.strip('/').split('/')[-1]
+    
+    if event_id not in public_event_ids:
+        print(f"⚠️ Event {event_id} is not public. Skipping.")
+        continue
 
-# === Fetch Full Event Details ===
-response = requests.get(f"https://api.truckersmp.com/v2/events/{event_id}")
-if response.status_code == 404:
-    print(f"TruckersMP Event with ID {event_id} not found. It may have been deleted.")
-    exit(0)
-elif response.status_code != 200:
-    print(f"Failed to fetch event data from TruckersMP API. Status code: {response.status_code}")
-    exit(1)
+    response = requests.get(f"https://api.truckersmp.com/v2/events/{event_id}")
+    if response.status_code != 200:
+        print(f"❌ Failed to fetch data for event {event_id}")
+        continue
 
-event_data = response.json().get('response', {})
+    event_data = response.json().get('response', {})
 
-# === UTC to IST Converter ===
+    # === Prepare Embed ===
+    embed = {
+        "title": f"📅 {event_data.get('name', 'TruckersMP Event')}",
+        "url": event_link,
+        "color": 16776960,
+        "fields": [
+            {"name": "🛠 VTC", "value": event_data.get('vtc', {}).get("name", "Unknown VTC"), "inline": True},
+            {"name": "📅 Date", "value": format_date(event_data.get("start_at", "")), "inline": True},
+            {"name": "⏰ Meetup (UTC)", "value": event_data.get("meetup_at", "").split(" ")[1][:5], "inline": True},
+            {"name": "⏰ Meetup (IST)", "value": utc_to_ist(event_data.get("meetup_at", "")), "inline": True},
+            {"name": "🚀 Start (UTC)", "value": event_data.get("start_at", "").split(" ")[1][:5], "inline": True},
+            {"name": "🚀 Start (IST)", "value": utc_to_ist(event_data.get("start_at", "")), "inline": True},
+            {"name": "🖥 Server", "value": event_data.get("server", {}).get("name", "Unknown Server"), "inline": True},
+            {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
+            {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
+            {"name": "🗺 DLC", "value": ", ".join(event_data.get("dlcs", [])) if event_data.get("dlcs") else "Base Map", "inline": True}
+        ]
+    }
 
+    payload = {
+        "content": f"<@&{ROLE_ID}>",
+        "embeds": [embed]
+    }
 
-def utc_to_ist(utc_str):
-    try:
-        dt_utc = datetime.strptime(utc_str, "%Y-%m-%d %H:%M:%S")
-        dt_ist = dt_utc + timedelta(hours=5, minutes=30)
-        return dt_ist.strftime("%H:%M")
-    except Exception as e:
-        print(f"Error converting UTC to IST: {e}")
-        return "N/A"
+    resp = requests.post(DISCORD_WEBHOOK, json=payload)
 
-def format_date(utc_str):
-    try:
-        dt = datetime.strptime(utc_str, "%Y-%m-%d %H:%M:%S")
-        return dt.strftime("%d-%m-%Y")
-    except Exception as e:
-        print(f"Error formatting date: {e}")
-        return "N/A"
-
-# === Prepare Fancy Embed ===
-embed = {
-    "title": f"📅 {event_data.get('name', 'TruckersMP Event')}",
-    "url": todays_event_link,
-    "color": 16776960,  # Yellow
-    "fields": [
-        {"name": "🛠 VTC", "value": event_data.get('vtc', {}).get("name", "Unknown VTC"), "inline": True},
-        {"name": "📅 Date", "value": format_date(event_data.get("start_at", "")), "inline": True},
-        {"name": "⏰ Meetup (UTC)", "value": event_data.get("meetup_at", "").split(" ")[1][:5], "inline": True},
-        {"name": "⏰ Meetup (IST)", "value": utc_to_ist(event_data.get("meetup_at", "")), "inline": True},
-        {"name": "🚀 Start (UTC)", "value": event_data.get("start_at", "").split(" ")[1][:5], "inline": True},
-        {"name": "🚀 Start (IST)", "value": utc_to_ist(event_data.get("start_at", "")), "inline": True},
-        {"name": "🖥 Server", "value": event_data.get("server", {}).get("name", "Unknown Server"), "inline": True},
-        {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
-        {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
-        {"name": "🗺 DLC", "value": ", ".join(event_data.get("dlcs", [])) if event_data.get("dlcs") else "Base Map", "inline": True}
-    ]
-}
-
-
-# === Send to Discord ===
-payload = {
-    "content": f"<@&{ROLE_ID}>",  # This will mention the role
-    "embeds": [embed]
-}
-
-resp = requests.post(DISCORD_WEBHOOK, json=payload)
-
-if resp.status_code in [200, 204]:
-    print("✅ Event successfully posted to Discord!")
-else:
-    print(f"❌ Failed to post to Discord: {resp.status_code}")
-    print(resp.text)
+    if resp.status_code in [200, 204]:
+        print(f"✅ Event {event_id} successfully posted to Discord!")
+    else:
+        print(f"❌ Failed to post event {event_id} to Discord: {resp.status_code}")
+        print(resp.text)
