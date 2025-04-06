@@ -9,6 +9,8 @@ from google.oauth2.service_account import Credentials
 from pytz import timezone
 
 # Load credentials and config
+scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+
 credentials = ServiceAccountCredentials.from_json_keyfile_name('truckersmp-events-ef7e395df282.json', scope)
 
 SHEET_ID = os.environ['SHEET_ID']
