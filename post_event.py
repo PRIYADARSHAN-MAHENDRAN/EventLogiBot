@@ -107,18 +107,19 @@ embed = {
     "url": todays_event_link,
     "color": 16776960,  # Yellow
     "fields": [
-        {"name": "🛠 VTC", "value": event_data.get("vtc", {}).get("name", "Unknown VTC"), "inline": True},
+        {"name": "🛠 VTC", "value": event_data.get('vtc', {}).get("name", "Unknown VTC"), "inline": True},
         {"name": "📅 Date", "value": format_date(event_data.get("start_at", "")), "inline": True},
         {"name": "⏰ Meetup (UTC)", "value": event_data.get("meetup_at", "").split(" ")[1][:5], "inline": True},
         {"name": "⏰ Meetup (IST)", "value": utc_to_ist(event_data.get("meetup_at", "")), "inline": True},
         {"name": "🚀 Start (UTC)", "value": event_data.get("start_at", "").split(" ")[1][:5], "inline": True},
         {"name": "🚀 Start (IST)", "value": utc_to_ist(event_data.get("start_at", "")), "inline": True},
-        {"name": "🖥 Server", "value": event_data.get("server", "Unknown"), "inline": True},
-        {"name": "🚏 Departure", "value": event_data.get("departure", "Unknown"), "inline": True},
-        {"name": "🎯 Arrival", "value": event_data.get("arrival", "Unknown"), "inline": True},
-        {"name": "🗺 DLC", "value": ", ".join(event_data.get("dlcs", [])) if event_data.get("dlcs") else "Base Map", "inline": True},
+        {"name": "🖥 Server", "value": event_data.get("server", {}).get("name", "Unknown Server"), "inline": True},
+        {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
+        {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
+        {"name": "🗺 DLC", "value": ", ".join(event_data.get("dlcs", [])) if event_data.get("dlcs") else "Base Map", "inline": True}
     ]
 }
+
 
 # === Send to Discord ===
 resp = requests.post(DISCORD_WEBHOOK, json={"embeds": [embed]})
