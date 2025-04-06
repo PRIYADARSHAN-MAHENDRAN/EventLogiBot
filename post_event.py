@@ -104,6 +104,38 @@ def format_date(utc_str):
     except Exception as e:
         print(f"Error formatting date: {e}")
         return "N/A"
+# === DLC ID to Name Mapping ===
+DLC_ID_MAP = {
+    1: "Going East!",
+    2: "Scandinavia",
+    3: "Vive la France!",
+    4: "Italia",
+    5: "Beyond the Baltic Sea",
+    6: "Road to the Black Sea",
+    7: "Iberia",
+    8: "West Balkans",
+    9: "Heart of Russia",
+    10: "High Power Cargo Pack",
+    11: "Heavy Cargo Pack",
+    12: "Special Transport",
+    13: "Krone Trailer Pack",
+    14: "Schwarzmüller Trailer Pack",
+    15: "Cabin Accessories",
+    16: "Wheel Tuning Pack",
+    304212: "Going East!",
+    304213: "Scandinavia",
+    304214: "Vive la France!",
+    304215: "Italia",
+    304216: "Beyond the Baltic Sea",
+    304217: "Road to the Black Sea",
+    304218: "Iberia",
+    304219: "West Balkans",
+}
+
+def get_dlc_names(dlc_ids):
+    if not dlc_ids:
+        return "Base Map"
+    return ", ".join(DLC_ID_MAP.get(dlc_id, f"Unknown ({dlc_id})") for dlc_id in dlc_ids)
 
 # === Loop Through All Event Links ===
 for event_link in event_links_today:
@@ -135,7 +167,8 @@ for event_link in event_links_today:
             {"name": "🖥 Server", "value": event_data.get("server", {}).get("name", "Unknown Server"), "inline": True},
             {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
             {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
-            {"name": "🗺 DLC", "value": ", ".join(event_data.get("dlcs", [])) if event_data.get("dlcs") else "Base Map", "inline": True}
+            {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True}
+
         ]
     }
 
