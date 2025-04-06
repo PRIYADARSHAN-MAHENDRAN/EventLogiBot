@@ -22,15 +22,11 @@ tz_ist = timezone('Asia/Kolkata')
 today = datetime.now(tz_ist).date()
 month_name = today.strftime("%B %Y")  # e.g., "April 2025"
 
-# === Load Sheet ===
-try:
-    sheet = client.open_by_key(SHEET_ID).worksheet(month_name)
-except gspread.exceptions.WorksheetNotFound:
-    print(f"Worksheet '{month_name}' not found.")
-    exit(0)
+# === Load Sheet & All Worksheets ===
+spreadsheet = client.open_by_key(SHEET_ID)
+worksheets = spreadsheet.worksheets()
 
-# === Find Today's Event ===
-
+todays_event_link = None
 
 def parse_flexible_date(date_str):
     from datetime import datetime
@@ -51,20 +47,25 @@ def parse_flexible_date(date_str):
             continue
     return None  # If all formats fail
 
-data = sheet.get_all_values()
-todays_event_link = None
-for row in data:
-    if len(row) >= 13 and row[12].strip().startswith("https://truckersmp.com/events"):
-        raw_date = row[2].strip()
-        print(f"Raw date from sheet: {raw_date}")
-        event_date = parse_flexible_date(raw_date)
-        print(f"Parsed sheet date: {event_date}")
+# === Loop through all sheets and rows ===
+for sheet in worksheets:
+    print(f"Checking sheet: {sheet.title}")
+    data = sheet.get_all_values()
+    
+    for row in data:
+        if len(row) >= 13 and row[12].strip().startswith("https://truckersmp.com/events"):
+            raw_date = row[2].strip()
+            print(f"Raw date from sheet: {raw_date}")
+            event_date = parse_flexible_date(raw_date)
+            print(f"Parsed sheet date: {event_date}")
 
-        if event_date == today:
-            event_url = row[12].strip()
-            todays_event_link = event_url
-            print("✅ Matching event found for today (based on sheet date)!")
-            break  # Done — stop here
+            if event_date == today:
+                event_url = row[12].strip()
+                todays_event_link = event_url
+                print(f"✅ Matching event found for today in sheet '{sheet.title}'!")
+                break
+    if todays_event_link:
+        break  # Stop looping other sheets once one match is found
 
 if not todays_event_link:
     print("No event found for today.")
