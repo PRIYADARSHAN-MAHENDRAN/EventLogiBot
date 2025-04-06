@@ -68,17 +68,11 @@ for row in data:
                 if event_api.status_code == 200:
                     event_json = event_api.json().get("response", {})
                     print(f"Event {event_id_candidate} start_at (UTC): {event_json.get('start_at', '')}")
-
-                    utc_time = datetime.strptime(event_json.get("start_at", ""), "%Y-%m-%d %H:%M:%S")
-                    ist_time = utc_time + timedelta(hours=5, minutes=30)
-                    print(f"[DEBUG] UTC: {utc_time}, IST: {ist_time}, Today IST: {today}")
-
-                    print(f"IST event start time: {ist_time} | Date: {ist_time.date()} | Today: {today}")
-
-                    if ist_time.date() == today:
-                        print("✅ Matching event found for today!")
+                    if event_date == today:
+                        print("✅ Matching event found for today (based on sheet date)!")
                         todays_event_link = event_url
                         break
+
                 else:
                     print(f"Failed to fetch event details for ID {event_id_candidate}")
             except Exception as e:
