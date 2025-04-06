@@ -68,8 +68,8 @@ for row in data:
                 if ist_time.date() == today:
                     todays_event_link = row[12]
                     break
-    except Exception as e:
-        print(f"Error checking API date match: {e}")
+        except Exception as e:
+            print(f"Error checking API date match: {e}")
 
 
 if not todays_event_link:
