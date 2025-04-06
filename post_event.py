@@ -15,7 +15,8 @@ credentials = ServiceAccountCredentials.from_json_keyfile_name('truckersmp-event
 
 SHEET_ID = '1jTadn8TtRP4ip5ayN-UClntNmKDTGY70wdPgo7I7lRY'
 
-DISCORD_WEBHOOK = os.environ['DISCORD_WEBHOOK']
+DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1358492482580779119/o4-NQuKr1zsUb9rUZsB_EnlYNiZwb_N8uXNfxfIRiGsdR8kh4CoKliIlSb8qot-F0HHO'
+
 
 # Parse the service account key
 import json
