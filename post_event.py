@@ -56,7 +56,7 @@ for sheet in worksheets:
     data = sheet.get_all_values()
     
     for row in data:
-        if len(row) >= 13 and row[11].strip().startswith("https://truckersmp.com/events"):
+        if len(row) >= 12 and row[11].strip().startswith("https://truckersmp.com/events"):
             raw_date = row[2].strip()
             event_date = parse_flexible_date(raw_date)
 
