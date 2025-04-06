@@ -94,6 +94,9 @@ meetup_location = event_data.get("departure", {}).get("location", "N/A")
 
 # Prepare message for Discord
 # Create a new embed dictionary using your desired structure
+from dateutil import parser
+from pytz import timezone, utc
+
 def safe_time_part(iso_str):
     if iso_str and "T" in iso_str:
         return iso_str.split("T")[1][:5]
@@ -111,7 +114,6 @@ def utc_to_ist(iso_time):
         return dt_ist.strftime("%H:%M")
     return "Unknown"
 
-# Embed
 embed = {
     "title": f"📅 {event_data.get('name', 'TruckersMP Event')}",
     "url": todays_event_link,
@@ -129,15 +131,12 @@ embed = {
         {"name": "🗺 DLC", "value": ", ".join(event_data.get("dlcs", [])) or "Base Map", "inline": True}
     ]
 }
-        field["value"] = utc_to_ist(event_data.get("start_at", ""))
 
-# Final webhook payload
 payload = {
     "content": f"🚛 **Today's TruckersMP Event!**",
     "embeds": [embed]
 }
 
-# Send to Discord
 res = requests.post(DISCORD_WEBHOOK, json=payload)
 print(f"Posted to Discord! Status: {res.status_code}")
-print(res.text)
+
