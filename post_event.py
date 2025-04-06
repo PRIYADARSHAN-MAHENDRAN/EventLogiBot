@@ -94,38 +94,41 @@ meetup_location = event_data.get("departure", {}).get("location", "N/A")
 
 # Prepare message for Discord
 # Create a new embed dictionary using your desired structure
+def safe_time_part(iso_str):
+    if iso_str and "T" in iso_str:
+        return iso_str.split("T")[1][:5]
+    return "Unknown"
+
+def safe_date_part(iso_str):
+    if iso_str and "T" in iso_str:
+        return iso_str.split("T")[0]
+    return "Unknown"
+
+def utc_to_ist(iso_time):
+    if iso_time and "T" in iso_time:
+        dt_utc = parser.isoparse(iso_time).replace(tzinfo=utc)
+        dt_ist = dt_utc.astimezone(timezone('Asia/Kolkata'))
+        return dt_ist.strftime("%H:%M")
+    return "Unknown"
+
+# Embed
 embed = {
     "title": f"📅 {event_data.get('name', 'TruckersMP Event')}",
     "url": todays_event_link,
     "color": 0xFFFF00,  # Yellow
     "fields": [
         {"name": "🛠 VTC", "value": event_data.get("vtc", {}).get("name", "Unknown VTC"), "inline": True},
-        {"name": "📅 Date", "value": event_data.get("start_at", "N/A").split("T")[0], "inline": True},
-        {"name": "⏰ Meetup (UTC)", "value": event_data.get("meetup_at", "N/A").split("T")[1][:5], "inline": True},
-        {"name": "⏰ Meetup (IST)", "value": "", "inline": True},  # Will be filled below
-        {"name": "🚀 Start (UTC)", "value": event_data.get("start_at", "N/A").split("T")[1][:5], "inline": True},
-        {"name": "🚀 Start (IST)", "value": "", "inline": True},  # Will be filled below
+        {"name": "📅 Date", "value": safe_date_part(event_data.get("start_at", "")), "inline": True},
+        {"name": "⏰ Meetup (UTC)", "value": safe_time_part(event_data.get("meetup_at", "")), "inline": True},
+        {"name": "⏰ Meetup (IST)", "value": utc_to_ist(event_data.get("meetup_at", "")), "inline": True},
+        {"name": "🚀 Start (UTC)", "value": safe_time_part(event_data.get("start_at", "")), "inline": True},
+        {"name": "🚀 Start (IST)", "value": utc_to_ist(event_data.get("start_at", "")), "inline": True},
         {"name": "🖥 Server", "value": event_data.get("server", {}).get("name", "Unknown"), "inline": True},
         {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
         {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
         {"name": "🗺 DLC", "value": ", ".join(event_data.get("dlcs", [])) or "Base Map", "inline": True}
     ]
 }
-
-# Convert UTC time strings to IST
-from dateutil import parser
-from pytz import utc
-
-def utc_to_ist(iso_time):
-    dt_utc = parser.isoparse(iso_time).replace(tzinfo=utc)
-    dt_ist = dt_utc.astimezone(timezone('Asia/Kolkata'))
-    return dt_ist.strftime("%H:%M")
-
-# Fill IST values in embed
-for field in embed["fields"]:
-    if field["name"] == "⏰ Meetup (IST)":
-        field["value"] = utc_to_ist(event_data.get("meetup_at", ""))
-    elif field["name"] == "🚀 Start (IST)":
         field["value"] = utc_to_ist(event_data.get("start_at", ""))
 
 # Final webhook payload
