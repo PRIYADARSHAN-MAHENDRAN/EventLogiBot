@@ -60,23 +60,11 @@ for row in data:
         event_date = parse_flexible_date(raw_date)
         print(f"Parsed sheet date: {event_date}")
 
-        if event_date:
-            try:
-                event_url = row[12].strip()
-                event_id_candidate = event_url.strip('/').split('/')[-1]
-                event_api = requests.get(f"https://api.truckersmp.com/v2/events/{event_id_candidate}")
-                if event_api.status_code == 200:
-                    event_json = event_api.json().get("response", {})
-                    print(f"Event {event_id_candidate} start_at (UTC): {event_json.get('start_at', '')}")
-                    if event_date == today:
-                        print("✅ Matching event found for today (based on sheet date)!")
-                        todays_event_link = event_url
-                        break
-
-                else:
-                    print(f"Failed to fetch event details for ID {event_id_candidate}")
-            except Exception as e:
-                print(f"Error checking API date match: {e}")
+        if event_date == today:
+            event_url = row[12].strip()
+            todays_event_link = event_url
+            print("✅ Matching event found for today (based on sheet date)!")
+            break  # Done — stop here
 
 if not todays_event_link:
     print("No event found for today.")
