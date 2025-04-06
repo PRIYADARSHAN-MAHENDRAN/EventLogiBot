@@ -127,7 +127,9 @@ DLC_ID_MAP = {
 def get_dlc_names(dlc_ids):
     if not dlc_ids:
         return "Base Map"
-    return ", ".join(DLC_ID_MAP.get(dlc_id, f"Unknown ({dlc_id})") for dlc_id in dlc_ids)
+    
+    # Convert all IDs to integers before lookup
+    return ", ".join(DLC_ID_MAP.get(int(dlc_id), f"Unknown ({dlc_id})") for dlc_id in dlc_ids)
 
 # === Loop Through All Event Links ===
 for event_link in event_links_today:
