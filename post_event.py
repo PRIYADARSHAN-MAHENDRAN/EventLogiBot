@@ -50,10 +50,14 @@ if not todays_event_link:
 event_id = todays_event_link.strip('/').split('/')[-1]
 
 # Get event details from TruckersMP API
+print(f"Event ID: {event_id}")
+
 response = requests.get(f"https://api.truckersmp.com/v2/event/{event_id}")
 if response.status_code != 200:
-    print("Failed to fetch event data from TruckersMP API")
+    print(f"Failed to fetch event data from TruckersMP API. Status code: {response.status_code}")
+    print(response.text)
     exit(1)
+
 
 event_data = response.json().get('response', {})
 
