@@ -1,0 +1,31 @@
+name: Post TruckersMP Event to Discord
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Runs every day at 12:00 AM UTC
+  workflow_dispatch:      # Allows manual trigger
+
+jobs:
+  post-event:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install gspread requests google-auth
+
+      - name: Run event poster script
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: python post_event.py
