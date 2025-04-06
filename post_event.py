@@ -55,10 +55,13 @@ data = sheet.get_all_values()
 todays_event_link = None
 for row in data:
     if len(row) >= 13:
+        print("Raw date from sheet:", row[2])  # Debug print
         event_date = parse_flexible_date(row[2])
+        print("Parsed event date:", event_date)  # Debug print
         if event_date and event_date == today:
             todays_event_link = row[12]
             break
+
 
 if not todays_event_link:
     print("No event found for today.")
