@@ -13,7 +13,8 @@ scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/au
 
 credentials = ServiceAccountCredentials.from_json_keyfile_name('truckersmp-events-ef7e395df282.json', scope)
 
-SHEET_ID = os.environ['SHEET_ID']
+SHEET_ID = '1jTadn8TtRP4ip5ayN-UClntNmKDTGY70wdPgo7I7lRY'
+
 DISCORD_WEBHOOK = os.environ['DISCORD_WEBHOOK']
 
 # Parse the service account key
