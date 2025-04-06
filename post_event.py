@@ -6,7 +6,7 @@ from google.oauth2.service_account import Credentials
 from pytz import timezone
 
 # Load credentials and config
-credentials_info = os.environ['GOOGLE_CREDENTIALS']
+credentials_info = json.loads(os.environ['GOOGLE_CREDENTIALS'])
 SHEET_ID = os.environ['SHEET_ID']
 DISCORD_WEBHOOK = os.environ['DISCORD_WEBHOOK']
 
