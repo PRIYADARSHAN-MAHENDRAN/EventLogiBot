@@ -10,12 +10,12 @@ from pytz import timezone
 
 # Replace with your actual Discord Role ID
 
-# ROLE_ID = "1335290367347658762"
-# DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1349764291859054623/WCmkpgMVX_MkVlpNyBnC_2fycbgDnUNdzMTmZhCdTASythWRXm_oa0UuF1U8Y4SBIYWg'
+ROLE_ID = "1335290367347658762"
+DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1349764291859054623/WCmkpgMVX_MkVlpNyBnC_2fycbgDnUNdzMTmZhCdTASythWRXm_oa0UuF1U8Y4SBIYWg'
 SHEET_ID = '1xcTUTFmwirTCIAseDtgr0ev7cHJq8FAuGI7wHDa_yMg'
 
-ROLE_ID = "1356018983496843294"  # Replace with your actual Discord role ID
-DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1358492482580779119/o4-NQuKr1zsUb9rUZsB_EnlYNiZwb_N8uXNfxfIRiGsdR8kh4CoKliIlSb8qot-F0HHO'
+# ROLE_ID = "1356018983496843294"  # Replace with your actual Discord role ID
+# DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1358492482580779119/o4-NQuKr1zsUb9rUZsB_EnlYNiZwb_N8uXNfxfIRiGsdR8kh4CoKliIlSb8qot-F0HHO'
 # SHEET_ID = '1jTadn8TtRP4ip5ayN-UClntNmKDTGY70wdPgo7I7lRY'
 
 # === Authenticate with Google Sheets ===
@@ -186,7 +186,7 @@ for event_link, row in event_links_today:
             {"name": "🪧 Slot Number", "value": slot_no or "N/A", "inline": True},
             {
     "name": "🔗 Links",
-    "value": f"[View Event]({event_link}) | [View Map]({event_data.get('map')})" + (f" | [Slot]({slot_link})" if slot_link else ""),
+    "value": f"[View Event]({event_link}) | [View Map]({event_data.get('map')})" + (f" | [View Slot]({slot_link})" if slot_link else ""),
     "inline": False
 }
 
