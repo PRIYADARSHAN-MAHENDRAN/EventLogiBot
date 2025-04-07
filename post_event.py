@@ -157,12 +157,12 @@ for event_link, row in event_links_today:
         continue
 
     event_data = response.json().get('response', {})
-    print("Row content:", row)
 
     # === Prepare Discord Embed ===
+    slot_no = row[9].strip() if len(row) > 9 and row[9].strip() else None
     slot_link = row[10].strip() if len(row) > 10 and row[10].strip() else None
 
-    print(f"Slot Link: {slot_link}")
+
 
     thumbnail_url = event_data.get("banner")
 
@@ -183,6 +183,7 @@ for event_link, row in event_links_today:
             {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
             {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
             {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True},
+            {"name": "🪧 Slot Number", "value": slot_no or "N/A", "inline": True},
             {
     "name": "🔗 Links",
     "value": f"[View Event]({event_link}) | [View Map]({event_data.get('map')})" + (f" | [Slot]({slot_link})" if slot_link else ""),
