@@ -182,7 +182,7 @@ for event_link in event_links_today:
     ],
     "footer": {
         "text": "by TNL | PRIYADARSHAN"
-    }
+        }
     }
     headers = {
         "Content-Type": "application/json"
@@ -190,27 +190,7 @@ for event_link in event_links_today:
     payload = {
     "content": f"<@&{ROLE_ID}>",
     "embeds": [embed],
-    "components": [
-        {
-            "type": 1,  # Action Row
-            "components": [
-                {
-                    "type": 2,  # Button
-                    "style": 5,  # Link button
-                    "label": "View Event"
-                    "url": event_link
-                },
-                {
-                    "type": 2,
-                    "style": 5,
-                    "label": "View Map",
-                    "url": f"https://truckersmp.com/events/{event_id}/map"
-                    print(f"button2")
-                }
-            ]
-        }
-    ]
-}
+    }
 
     resp = requests.post(DISCORD_WEBHOOK, headers=headers, json=payload)
 
