@@ -60,11 +60,13 @@ for sheet in worksheets:
     print(f"🔍 Checking sheet: {sheet.title}")
     data = sheet.get_all_values()
     
+    
     for row in data:
         if len(row) >= 12 and row[11].strip().startswith("https://truckersmp.com/events"):
             raw_date = row[1].strip()  # Column B is index 1
 
             event_date = parse_flexible_date(raw_date)
+            print(f"event date : {event_date}")
 
             if event_date == today:
                 event_url = row[11].strip()
