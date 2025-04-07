@@ -179,7 +179,9 @@ for event_link in event_links_today:
             "text": "by TNL | PRIYADARSHAN"
         }
     }
-
+    headers = {
+        "Content-Type": "application/json"
+    }
     payload = {
     "content": f"<@&{ROLE_ID}>",
     "embeds": [embed],
