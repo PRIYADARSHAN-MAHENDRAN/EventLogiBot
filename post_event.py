@@ -163,6 +163,7 @@ for event_link in event_links_today:
     links = f"[View Event]({event_link}) | [View Map]({event_data.get('map')})"
     if slot_link:
         links += f" | [Slot]({slot_link})"
+
     
     embed = {
         "title": f"📅 {event_data.get('name', 'TruckersMP Event')}",
@@ -187,7 +188,8 @@ for event_link in event_links_today:
     }
     
     if thumbnail_url:
-        embed["thumbnail"] = {"url": thumbnail_url}
+        embed["image"] = {"url": thumbnail_url}
+
     
     headers = {
         "Content-Type": "application/json"
