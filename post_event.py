@@ -174,9 +174,28 @@ for event_link in event_links_today:
     }
 
     payload = {
-        "content": f"<@&{ROLE_ID}>",
-        "embeds": [embed]
-    }
+    "content": f"<@&{ROLE_ID}>",
+    "embeds": [embed],
+    "components": [
+        {
+            "type": 1,  # Action Row
+            "components": [
+                {
+                    "type": 2,  # Button
+                    "style": 5,  # Link button
+                    "label": "View Event",
+                    "url": event_link
+                },
+                {
+                    "type": 2,
+                    "style": 5,
+                    "label": "View Map",
+                    "url": f"https://truckersmp.com/events/{event_id}/map"
+                }
+            ]
+        }
+    ]
+}
 
     resp = requests.post(DISCORD_WEBHOOK, json=payload)
 
