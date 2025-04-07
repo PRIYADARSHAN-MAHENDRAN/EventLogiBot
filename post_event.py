@@ -197,7 +197,7 @@ for event_link in event_links_today:
                 {
                     "type": 2,  # Button
                     "style": 5,  # Link button
-                    "label": "View Event",
+                    "label": "View Event"
                     #"url": event_link
                     print(f"button1")
                 },
