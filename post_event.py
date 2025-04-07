@@ -157,7 +157,13 @@ for event_link in event_links_today:
     event_data = response.json().get('response', {})
 
     # === Prepare Discord Embed ===
-    image_link = row[10] if len(row) > 10 else None
+    slot_link = row[10] if len(row) > 10 and row[10] else None
+    
+    thumbnail_url = event_data.get("banner")
+
+    links = f"[View Event]({event_link}) | [View Map]({event_data.get('map')})"
+    if slot_link:
+        links += f" | [Slot]({slot_link})"
 
 
     embed = {
@@ -185,6 +191,8 @@ for event_link in event_links_today:
         "text": "by TNL | PRIYADARSHAN"
         }
     }
+    if thumbnail_url:
+    embed["thumbnail"] = {"url": thumbnail_url}
     headers = {
         "Content-Type": "application/json"
     }
