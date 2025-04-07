@@ -160,25 +160,29 @@ for event_link in event_links_today:
     # === Prepare Discord Embed ===
 
     embed = {
-        "title": f"📅 {event_data.get('name', 'TruckersMP Event')}",
-        "url": event_link,
-        "color": 16776960,
-        "fields": [
-            {"name": "🛠 VTC", "value": event_data.get('vtc', {}).get("name", "Unknown VTC"), "inline": True},
-            {"name": "📅 Date", "value": format_date(event_data.get("start_at", "")), "inline": True},
-            {"name": "⏰ Meetup (UTC)", "value": event_data.get("meetup_at", "").split(" ")[1][:5], "inline": True},
-            {"name": "⏰ Meetup (IST)", "value": utc_to_ist(event_data.get("meetup_at", "")), "inline": True},
-            {"name": "🚀 Start (UTC)", "value": event_data.get("start_at", "").split(" ")[1][:5], "inline": True},
-            {"name": "🚀 Start (IST)", "value": utc_to_ist(event_data.get("start_at", "")), "inline": True},
-            {"name": "🖥 Server", "value": event_data.get("server", {}).get("name", "Unknown Server"), "inline": True},
-            {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
-            {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
-            {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True},
-            {"name": "🔗 Links", "value": f"[View Event]({event_link}) | [View Map](https://truckersmp.com/events/{event_id}/map)", "inline": False}
-        ],
-        "footer": {
-            "text": "by TNL | PRIYADARSHAN"
+    "title": f"📅 {event_data.get('name', 'TruckersMP Event')}",
+    "url": event_link,
+    "color": 16776960,
+    "fields": [
+        {"name": "🛠 VTC", "value": event_data.get('vtc', {}).get("name", "Unknown VTC"), "inline": True},
+        {"name": "📅 Date", "value": format_date(event_data.get("start_at", "")), "inline": True},
+        {"name": "⏰ Meetup (UTC)", "value": event_data.get("meetup_at", "").split(" ")[1][:5], "inline": True},
+        {"name": "⏰ Meetup (IST)", "value": utc_to_ist(event_data.get("meetup_at", "")), "inline": True},
+        {"name": "🚀 Start (UTC)", "value": event_data.get("start_at", "").split(" ")[1][:5], "inline": True},
+        {"name": "🚀 Start (IST)", "value": utc_to_ist(event_data.get("start_at", "")), "inline": True},
+        {"name": "🖥 Server", "value": event_data.get("server", {}).get("name", "Unknown Server"), "inline": True},
+        {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
+        {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
+        {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True},
+        {
+            "name": "🔗 Links",
+            "value": f"[View Event]({event_link}) | [View Map](https://truckersmp.com/events/{event_id}/map)",
+            "inline": False
         }
+    ],
+    "footer": {
+        "text": "by TNL | PRIYADARSHAN"
+    }
     }
     headers = {
         "Content-Type": "application/json"
