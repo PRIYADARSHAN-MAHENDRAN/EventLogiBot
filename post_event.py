@@ -158,49 +158,46 @@ for event_link in event_links_today:
 
     # === Prepare Discord Embed ===
     slot_link = row[10] if len(row) > 10 and row[10] else None
-    
     thumbnail_url = event_data.get("banner")
-
+    
     links = f"[View Event]({event_link}) | [View Map]({event_data.get('map')})"
     if slot_link:
         links += f" | [Slot]({slot_link})"
-
-
+    
     embed = {
-    "title": f"📅 {event_data.get('name', 'TruckersMP Event')}",
-    "url": event_link,
-    "color": 16776960,
-    "fields": [
-        {"name": "🛠 VTC", "value": event_data.get('vtc', {}).get("name", "Unknown VTC"), "inline": True},
-        {"name": "📅 Date", "value": format_date(event_data.get("start_at", "")), "inline": True},
-        {"name": "⏰ Meetup (UTC)", "value": event_data.get("meetup_at", "").split(" ")[1][:5], "inline": True},
-        {"name": "⏰ Meetup (IST)", "value": utc_to_ist(event_data.get("meetup_at", "")), "inline": True},
-        {"name": "🚀 Start (UTC)", "value": event_data.get("start_at", "").split(" ")[1][:5], "inline": True},
-        {"name": "🚀 Start (IST)", "value": utc_to_ist(event_data.get("start_at", "")), "inline": True},
-        {"name": "🖥 Server", "value": event_data.get("server", {}).get("name", "Unknown Server"), "inline": True},
-        {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
-        {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
-        {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True},
-        {
-            "name": "🔗 Links",
-            "value": f"[View Event]({event_link}) | [View Map]({event_data.get('map')}) | [Slot]({image_link})",
-            "inline": False
-        }
-    ],
-    "footer": {
-        "text": "by TNL | PRIYADARSHAN"
+        "title": f"📅 {event_data.get('name', 'TruckersMP Event')}",
+        "url": event_link,
+        "color": 16776960,
+        "fields": [
+            {"name": "🛠 VTC", "value": event_data.get('vtc', {}).get("name", "Unknown VTC"), "inline": True},
+            {"name": "📅 Date", "value": format_date(event_data.get("start_at", "")), "inline": True},
+            {"name": "⏰ Meetup (UTC)", "value": event_data.get("meetup_at", "").split(" ")[1][:5], "inline": True},
+            {"name": "⏰ Meetup (IST)", "value": utc_to_ist(event_data.get("meetup_at", "")), "inline": True},
+            {"name": "🚀 Start (UTC)", "value": event_data.get("start_at", "").split(" ")[1][:5], "inline": True},
+            {"name": "🚀 Start (IST)", "value": utc_to_ist(event_data.get("start_at", "")), "inline": True},
+            {"name": "🖥 Server", "value": event_data.get("server", {}).get("name", "Unknown Server"), "inline": True},
+            {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
+            {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
+            {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True},
+            {"name": "🔗 Links", "value": links, "inline": False}
+        ],
+        "footer": {
+            "text": "by TNL | PRIYADARSHAN"
         }
     }
+    
     if thumbnail_url:
-    embed["thumbnail"] = {"url": thumbnail_url}
+        embed["thumbnail"] = {"url": thumbnail_url}
+    
     headers = {
         "Content-Type": "application/json"
     }
+    
     payload = {
-    "content": f"||<@&{ROLE_ID}>||",
-    "embeds": [embed],
+        "content": f"||<@&{ROLE_ID}>||",  # Hidden role ping
+        "embeds": [embed],
     }
-
+    
     resp = requests.post(DISCORD_WEBHOOK, headers=headers, json=payload)
 
 
