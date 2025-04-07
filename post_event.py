@@ -187,7 +187,7 @@ for event_link in event_links_today:
         "Content-Type": "application/json"
     }
     payload = {
-    "content": f"<@&{ROLE_ID}>",
+    "content": f"||<@&{ROLE_ID}>||",
     "embeds": [embed],
     }
 
