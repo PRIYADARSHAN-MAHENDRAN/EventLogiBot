@@ -173,7 +173,7 @@ for event_link in event_links_today:
             {"name": "🖥 Server", "value": event_data.get("server", {}).get("name", "Unknown Server"), "inline": True},
             {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
             {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
-            {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True}
+            {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True},
             {"name": "🔗 Links","value": f"[View Event]({event_link}) | [View Map](https://truckersmp.com/events/{event_id}/map)"}
         ],
         "footer": {
