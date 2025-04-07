@@ -157,6 +157,7 @@ for event_link in event_links_today:
     event_data = response.json().get('response', {})
 
     # === Prepare Discord Embed ===
+    image_link = row[10]
 
     embed = {
     "title": f"📅 {event_data.get('name', 'TruckersMP Event')}",
@@ -175,7 +176,7 @@ for event_link in event_links_today:
         {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True},
         {
             "name": "🔗 Links",
-            "value": f"[View Event]({event_link}) | [View Map]({event_data.get('map')}) | [Slot]({row[10]})",
+            "value": f"[View Event]({event_link}) | [View Map]({event_data.get('map')}) | [Slot]({image_link})",
             "inline": False
         }
     ],
