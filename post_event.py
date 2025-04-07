@@ -155,9 +155,11 @@ for event_link in event_links_today:
         continue
 
     event_data = response.json().get('response', {})
+    print("Row content:", row)
 
     # === Prepare Discord Embed ===
-    slot_link = row[10] if len(row) > 10 and row[10] else None
+    slot_link = row[10].strip() if len(row) > 10 and row[10].strip() else None
+
     print(f"Slot Link: {slot_link}")
 
     thumbnail_url = event_data.get("banner")
