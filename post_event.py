@@ -63,14 +63,15 @@ for sheet in worksheets:
     
     for row in data:
         if len(row) >= 12 and row[11].strip().startswith("https://truckersmp.com/events"):
-            raw_date = row[1].strip()  # Column B is index 1
-
+            raw_date = row[1].strip()
+    
             event_date = parse_flexible_date(raw_date)
-
+    
             if event_date == today:
                 event_url = row[11].strip()
                 print(f"✅ Found event for today in '{sheet.title}': {event_url}")
-                event_links_today.append(event_url)
+                event_links_today.append((event_url, row))  # save both link and row
+
 
 if not event_links_today:
     print("❌ No events found for today.")
@@ -141,7 +142,8 @@ def get_dlc_names(dlc_ids):
 
 # === Step 3: Loop Through and Post Events to Discord ===
 
-for event_link in event_links_today:
+for event_link, row in event_links_today:
+
     event_id = event_link.strip('/').split('/')[-1].split('-')[0]
 
 
