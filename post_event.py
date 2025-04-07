@@ -174,6 +174,7 @@ for event_link in event_links_today:
             {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
             {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
             {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True}
+            {"name": "🔗 Links","value": f"[View Event]({event_link}) | [View Map](https://truckersmp.com/events/{event_id}/map)"}
         ],
         "footer": {
             "text": "by TNL | PRIYADARSHAN"
@@ -194,12 +195,14 @@ for event_link in event_links_today:
                     "style": 5,  # Link button
                     "label": "View Event",
                     "url": event_link
+                    print(f"button1")
                 },
                 {
                     "type": 2,
                     "style": 5,
                     "label": "View Map",
                     "url": f"https://truckersmp.com/events/{event_id}/map"
+                    print(f"button2")
                 }
             ]
         }
