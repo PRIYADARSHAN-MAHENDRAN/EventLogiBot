@@ -159,13 +159,10 @@ for event_link in event_links_today:
     # === Prepare Discord Embed ===
     slot_link = row[10] if len(row) > 10 and row[10] else None
     thumbnail_url = event_data.get("banner")
-    
-    links = f"[View Event]({event_link}) | [View Map]({event_data.get('map')})"
-    if slot_link:
-        links += f" | [Slot]({slot_link})"
 
     
     embed = {
+        "thumbnail": {"url": thumbnail_url},
         "title": f"📅 {event_data.get('name', 'TruckersMP Event')}",
         "url": event_link,
         "color": 16776960,
@@ -180,16 +177,19 @@ for event_link in event_links_today:
             {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
             {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
             {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True},
-            {"name": "🔗 Links", "value": links, "inline": False}
+            {
+    "name": "🔗 Links",
+    "value": f"[View Event]({event_link}) | [View Map]({event_data.get('map')})" + (f" | [Slot]({slot_link})" if slot_link else ""),
+    "inline": False
+}
+
         ],
         "footer": {
             "text": "by TNL | PRIYADARSHAN"
         }
     }
     
-    if thumbnail_url:
-        embed["image"] = {"url": thumbnail_url}
-
+    
     
     headers = {
         "Content-Type": "application/json"
