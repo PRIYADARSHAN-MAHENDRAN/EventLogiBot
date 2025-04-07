@@ -158,7 +158,8 @@ for event_link in event_links_today:
 
     # === Prepare Discord Embed ===
     slot_link = row[10] if len(row) > 10 and row[10] else None
-    print(f"{slot_link}")
+    print(f"Slot Link: {slot_link}")
+
     thumbnail_url = event_data.get("banner")
 
     
