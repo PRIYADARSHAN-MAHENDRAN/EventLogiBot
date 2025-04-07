@@ -175,7 +175,7 @@ for event_link in event_links_today:
         {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True},
         {
             "name": "🔗 Links",
-            "value": f"[View Event]({event_link}) | [View Map]({event_data.get('map')})",
+            "value": f"[View Event]({event_link}) | [View Map]({event_data.get('map')}) | [Slot]({row[10]})",
             "inline": False
         }
     ],
