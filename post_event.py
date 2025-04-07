@@ -206,7 +206,8 @@ for event_link in event_links_today:
     ]
 }
 
-    resp = requests.post(DISCORD_WEBHOOK, json=payload)
+    resp = requests.post(DISCORD_WEBHOOK, headers=headers, json=payload)
+
 
     if resp.status_code in [200, 204]:
         print(f"✅ Event {event_id} successfully posted to Discord!")
