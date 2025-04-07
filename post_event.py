@@ -157,7 +157,8 @@ for event_link in event_links_today:
     event_data = response.json().get('response', {})
 
     # === Prepare Discord Embed ===
-    image_link = row[10]
+    image_link = row[10] if len(row) > 10 else None
+
 
     embed = {
     "title": f"📅 {event_data.get('name', 'TruckersMP Event')}",
