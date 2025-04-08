@@ -5,6 +5,8 @@ import json
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime, timedelta
 from pytz import timezone
+from google.oauth2.service_account import Credentials
+
 
 # === Configuration ===
 
