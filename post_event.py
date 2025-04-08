@@ -24,9 +24,14 @@ month_name = today.strftime("%B %Y")  # E.g., "April 2025"
 
 # === Authenticate with Google Sheets ===
 
-scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-credentials = ServiceAccountCredentials.from_json_keyfile_name('truckersmp-events-ef7e395df282.json', scope)
-client = gspread.authorize(credentials)
+keyfile_dict = json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT_KEY"])
+
+# Authorize with gspread
+creds = Credentials.from_service_account_info(keyfile_dict, scopes=[
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+])
+client = gspread.authorize(creds)
 
 # === Date Parsing Helper ===
 
