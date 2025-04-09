@@ -22,6 +22,7 @@ DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1358492482580779119/o4-NQuKr
 
 tz_ist = timezone('Asia/Kolkata')
 today = datetime.now(tz_ist).date()
+print(f"today: {today}")
 month_name = today.strftime("%B %Y")  # E.g., "April 2025"
 
 # === Authenticate with Google Sheets ===
