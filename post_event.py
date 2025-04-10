@@ -151,9 +151,9 @@ except Exception as e:
 for event_link, row in event_links_today:
     event_id = event_link.strip('/').split('/')[-1].split('-')[0]
 
-if event_id not in public_event_ids:
-    print(f"1 Event {event_id} is not public. Skipping.")
-    continue
+    if event_id not in public_event_ids:
+             print(f"⚠️ Event {event_id} is not public. Skipping.")
+             continue
 
     response = requests.get(f"https://api.truckersmp.com/v2/events/{event_id}")
     if response.status_code != 200:
