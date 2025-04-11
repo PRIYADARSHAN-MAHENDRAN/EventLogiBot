@@ -192,8 +192,8 @@ for event_link, row in event_links_today:
                 "value": f"[View Event]({event_link}) | [View Map]({event_data.get('map')})" + (f" | [View Slot]({slot_link})" if slot_link else ""),
                 "inline": False
             },{
-            "name": "💛 Note",
-            "value": f"Thank you, {event_data.get('vtc', {}).get('name', 'your VTC')}. For inviting us to your {event_data.get('name', 'event')}. We had a great time and enjoyed it a lot! - TAMILNADU LOGISTICS 💛",
+            "name": "💬 Thank You Message:",
+            "value": f"💛 Thank you, {event_data.get('vtc', {}).get('name', 'your VTC')}. For inviting us to your {event_data.get('name', 'event')}. We had a great time and enjoyed it a lot! - TAMILNADU LOGISTICS  💛",
             "inline": False
         }
         ],
