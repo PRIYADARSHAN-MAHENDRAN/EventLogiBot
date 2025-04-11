@@ -22,6 +22,7 @@ SHEET_ID = '1xcTUTFmwirTCIAseDtgr0ev7cHJq8FAuGI7wHDa_yMg'
 
 tz_ist = timezone('Asia/Kolkata')
 today = datetime.now(tz_ist).date()
+timestamp_ist = datetime.now(tz_ist).isoformat()
 print(f"today: {today}")
 month_name = today.strftime("%B %Y")  # E.g., "April 2025"
 
@@ -190,9 +191,14 @@ for event_link, row in event_links_today:
                 "name": "🔗 Links",
                 "value": f"[View Event]({event_link}) | [View Map]({event_data.get('map')})" + (f" | [View Slot]({slot_link})" if slot_link else ""),
                 "inline": False
-            }
+            },{
+            "name": "💛 Note",
+            "value": f"Thank you, {event_data.get('vtc', {}).get('name', 'your VTC')}. For inviting us to your {event_data.get('name', 'event')}. We had a great time and enjoyed it a lot! - TAMILNADU LOGISTICS 💛",
+            "inline": False
+        }
         ],
-        "footer": {"text": "by TNL | PRIYADARSHAN"}
+        "footer": {"text": "by TNL | PRIYADARSHAN"},
+    "timestamp": timestamp_ist
     }
 
     # === Send to Discord Webhook ===
