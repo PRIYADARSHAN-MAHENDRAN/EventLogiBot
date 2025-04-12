@@ -130,31 +130,31 @@ if not event_links_today:
 
 # === Step 2: Get All Public TruckersMP Event IDs ===
 
-public_events_res = requests.get("https://api.truckersmp.com/v2/events")
-if public_events_res.status_code != 200:
-    print("❌ Failed to fetch public events.")
-    exit(1)
+# public_events_res = requests.get("https://api.truckersmp.com/v2/events")
+# if public_events_res.status_code != 200:
+#     print("❌ Failed to fetch public events.")
+#     exit(1)
 
-try:
-    public_json = public_events_res.json()
-    response_data = public_json.get("response", {})
-    public_event_ids = [
-        str(event["id"])
-        for category in response_data.values() if isinstance(category, list)
-        for event in category
-    ]
-except Exception as e:
-    print(f"❌ Failed to parse public event list: {e}")
-    exit(1)
+# try:
+#     public_json = public_events_res.json()
+#     response_data = public_json.get("response", {})
+#     public_event_ids = [
+#         str(event["id"])
+#         for category in response_data.values() if isinstance(category, list)
+#         for event in category
+#     ]
+# except Exception as e:
+#     print(f"❌ Failed to parse public event list: {e}")
+#     exit(1)
 
 # === Step 3: Process & Post Each Event to Discord ===
 
 for event_link, row in event_links_today:
     event_id = event_link.strip('/').split('/')[-1].split('-')[0]
 
-    if event_id not in public_event_ids:
-             print(f"⚠️ Event {event_id} is not public. Skipping.")
-             continue
+    # if event_id not in public_event_ids:
+    #          print(f"⚠️ Event {event_id} is not public. Skipping.")
+    #          continue
 
     response = requests.get(f"https://api.truckersmp.com/v2/events/{event_id}")
     if response.status_code != 200:
