@@ -10,12 +10,12 @@ from google.oauth2.service_account import Credentials
 
 # === Configuration ===
 
-ROLE_ID = "1335290367347658762"
-DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1349764291859054623/WCmkpgMVX_MkVlpNyBnC_2fycbgDnUNdzMTmZhCdTASythWRXm_oa0UuF1U8Y4SBIYWg'
+# ROLE_ID = "1335290367347658762"
+# DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1349764291859054623/WCmkpgMVX_MkVlpNyBnC_2fycbgDnUNdzMTmZhCdTASythWRXm_oa0UuF1U8Y4SBIYWg'
 SHEET_ID = '1xcTUTFmwirTCIAseDtgr0ev7cHJq8FAuGI7wHDa_yMg'
 
-# ROLE_ID = "1356018983496843294"  # Replace with your actual Discord role ID
-# DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1358492482580779119/o4-NQuKr1zsUb9rUZsB_EnlYNiZwb_N8uXNfxfIRiGsdR8kh4CoKliIlSb8qot-F0HHO'
+ROLE_ID = "1356018983496843294"  # Replace with your actual Discord role ID
+DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1358492482580779119/o4-NQuKr1zsUb9rUZsB_EnlYNiZwb_N8uXNfxfIRiGsdR8kh4CoKliIlSb8qot-F0HHO'
 # SHEET_ID = '1jTadn8TtRP4ip5ayN-UClntNmKDTGY70wdPgo7I7lRY'
 
 # === Time Setup ===
@@ -193,7 +193,15 @@ for event_link, row in event_links_today:
                 "inline": False
             },{
             "name": "💬 Thank You Message:",
-            "value": f"💛 Thank you, {event_data.get('vtc', {}).get('name', 'your VTC')}. For inviting us to your {event_data.get('name', 'event')}. We had a great time and enjoyed it a lot! - TAMILNADU LOGISTICS  💛",
+            {
+            "name": "🔗 Links",
+            "value": (
+                f"Event: {event_link}" +
+                (f"\nMap: {event_data.get('map')}" if event_data.get('map') else "") +
+                (f"\nSlot: {slot_link}" if slot_link else "")
+            ),
+            "inline": False
+        },
             "inline": False
         }
         ],
