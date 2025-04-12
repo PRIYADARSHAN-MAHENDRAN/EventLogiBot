@@ -188,12 +188,6 @@ for event_link, row in event_links_today:
             {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True},
             {"name": "🪧 Slot Number", "value": slot_no or "N/A", "inline": True},
             {
-                "name": "🔗 Links",
-                "value": f"[View Event]({event_link}) | [View Map]({event_data.get('map')})" + (f" | [View Slot]({slot_link})" if slot_link else ""),
-                "inline": False
-            },{
-            "name": "💬 Thank You Message:",
-            {
             "name": "🔗 Links",
             "value": (
                 f"Event: {event_link}" +
@@ -202,9 +196,14 @@ for event_link, row in event_links_today:
             ),
             "inline": False
         },
+        {
+            "name": "💬 Thank You Message:",
+            "value": f"💛 Thank you, {event_data.get('vtc', {}).get('name', 'your VTC')}. "
+                     f"For inviting us to your {event_data.get('name', 'event')}. "
+                     f"We had a great time and enjoyed it a lot! - TAMILNADU LOGISTICS 💛",
             "inline": False
         }
-        ],
+    ],
         "footer": {"text": "by TNL | PRIYADARSHAN"},
     "timestamp": timestamp_ist
     }
