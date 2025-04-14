@@ -177,14 +177,8 @@ for event_link, row in event_links_today:
         "fields": [
             {"name": "🛠 VTC", "value": event_data.get('vtc', {}).get("name", "Unknown VTC"), "inline": True},
             {"name": "📅 Date", "value": format_date(event_data.get("start_at", "")), "inline": True},
-            {"name": "🕒 Timing", "value": (
-                    f"⏰ Meetup: {event_data.get('meetup_at', '').split(' ')[1][:5]} UTC "
-                    f"({utc_to_ist_ampm(event_data.get('meetup_at', ''))} IST)  "
-                    f"🚀 Start: {event_data.get('start_at', '').split(' ')[1][:5]} UTC "
-                    f"({utc_to_ist_ampm(event_data.get('start_at', ''))} IST)"
-                ),
-                "inline": False
-            },
+            {"name": "⏰ Meetup Time","value": f"{event_data.get('meetup_at', '').split(' ')[1][:5]} UTC ({utc_to_ist_ampm(event_data.get('meetup_at', ''))} IST)","inline": True},
+            {"name": "🚀 Departure Time","value": f"{event_data.get('start_at', '').split(' ')[1][:5]} UTC ({utc_to_ist_ampm(event_data.get('start_at', ''))} IST)","inline": True},
             {"name": "🖥 Server", "value": event_data.get("server", {}).get("name", "Unknown Server"), "inline": True},
             {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
             {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
