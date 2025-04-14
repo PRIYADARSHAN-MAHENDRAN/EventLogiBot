@@ -6,6 +6,8 @@ from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime, timedelta
 from pytz import timezone
 from google.oauth2.service_account import Credentials
+from io import BytesIO
+
 
 
 # === Configuration ===
@@ -36,6 +38,16 @@ creds = Credentials.from_service_account_info(keyfile_dict, scopes=[
     "https://www.googleapis.com/auth/drive"
 ])
 client = gspread.authorize(creds)
+
+
+def download_imgur_image(link):
+    image_id = link.strip().split("/")[-1]
+    direct_url = f"https://i.imgur.com/{image_id}.png"
+    response = requests.get(direct_url)
+    if response.status_code == 200:
+        return BytesIO(response.content), f"{image_id}.png"
+    return None, None
+
 
 # === Date Parsing Helper ===
 
@@ -222,3 +234,19 @@ for event_link, row in event_links_today:
     else:
         print(f"❌ Failed to post event {event_id} to Discord: {resp.status_code}")
         print(resp.text)
+    if slot_link:
+    image_file, filename = download_imgur_image(slot_link)
+    if image_file:
+        image_file.seek(0)
+        files = {
+            'file': (filename, image_file, 'image/png')
+        }
+        resp = requests.post(DISCORD_WEBHOOK, files=files)
+
+        if resp.status_code in [200, 204]:
+            print("✅ Slot image sent as normal image.")
+        else:
+            print(f"❌ Failed to send slot image: {resp.status_code}")
+    else:
+        print("❌ Could not fetch slot image.")
+
