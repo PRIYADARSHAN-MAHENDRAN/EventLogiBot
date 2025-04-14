@@ -42,16 +42,26 @@ client = gspread.authorize(creds)
 
 def download_imgur_image(link):
     try:
-        image_id = link.strip().split("/")[-1].split('.')[0].split('#')[0].split('?')[0]
-        formats = ['png', 'jpg', 'jpeg']
-        for fmt in formats:
-            direct_url = f"https://i.imgur.com/{image_id}.{fmt}"
-            response = requests.get(direct_url)
-            if response.status_code == 200:
-                return BytesIO(response.content), f"{image_id}.{fmt}"
+        # If it's already a direct image link, use it directly
+        if "i.imgur.com" in link:
+            direct_url = link
+        elif "imgur.com" in link:
+            # Extract just the image ID from typical Imgur URL
+            image_id = link.strip().split("/")[-1].split("?")[0]
+            direct_url = f"https://i.imgur.com/{image_id}.png"
+        else:
+            print("❌ Not an Imgur link.")
+            return None, None
+
+        response = requests.get(direct_url)
+        if response.status_code == 200:
+            return BytesIO(response.content), direct_url.split("/")[-1]
+        else:
+            print(f"❌ Failed to fetch image from: {direct_url}")
     except Exception as e:
-        print(f"Image download error: {e}")
+        print(f"❌ Exception in download_imgur_image: {e}")
     return None, None
+
 
 
 # === Date Parsing Helper ===
@@ -240,6 +250,7 @@ for event_link, row in event_links_today:
         print(f"❌ Failed to post event {event_id} to Discord: {resp.status_code}")
         print(resp.text)
     if slot_link:
+        print(f"📸 Slot image link: {slot_link}")
         image_file, filename = download_imgur_image(slot_link)
         if image_file:
             image_file.seek(0)
