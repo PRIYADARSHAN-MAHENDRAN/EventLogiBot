@@ -42,26 +42,31 @@ client = gspread.authorize(creds)
 
 def download_imgur_image(link):
     try:
-        # If it's already a direct image link, use it directly
         if "i.imgur.com" in link:
             direct_url = link
         elif "imgur.com" in link:
-            # Extract just the image ID from typical Imgur URL
             image_id = link.strip().split("/")[-1].split("?")[0]
-            direct_url = f"https://i.imgur.com/{image_id}.png"
+            # First, try fetching without extension to let Imgur redirect us
+            head = requests.head(f"https://imgur.com/{image_id}", allow_redirects=True)
+            if "image/" in head.headers.get("Content-Type", ""):
+                ext = head.headers["Content-Type"].split("/")[-1]
+                direct_url = f"https://i.imgur.com/{image_id}.{ext}"
+            else:
+                # fallback to .jpg
+                direct_url = f"https://i.imgur.com/{image_id}.jpg"
         else:
             print("❌ Not an Imgur link.")
             return None, None
 
         response = requests.get(direct_url)
         if response.status_code == 200:
-            return BytesIO(response.content), direct_url.split("/")[-1]
+            filename = direct_url.split("/")[-1]
+            return BytesIO(response.content), filename
         else:
             print(f"❌ Failed to fetch image from: {direct_url}")
     except Exception as e:
         print(f"❌ Exception in download_imgur_image: {e}")
     return None, None
-
 
 
 # === Date Parsing Helper ===
