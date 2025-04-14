@@ -235,18 +235,18 @@ for event_link, row in event_links_today:
         print(f"❌ Failed to post event {event_id} to Discord: {resp.status_code}")
         print(resp.text)
     if slot_link:
-    image_file, filename = download_imgur_image(slot_link)
-    if image_file:
-        image_file.seek(0)
-        files = {
-            'file': (filename, image_file, 'image/png')
-        }
-        resp = requests.post(DISCORD_WEBHOOK, files=files)
-
-        if resp.status_code in [200, 204]:
-            print("✅ Slot image sent as normal image.")
+        image_file, filename = download_imgur_image(slot_link)
+        if image_file:
+            image_file.seek(0)
+            files = {
+                'file': (filename, image_file, 'image/png')
+            }
+            resp = requests.post(DISCORD_WEBHOOK, files=files)
+    
+            if resp.status_code in [200, 204]:
+                print("✅ Slot image sent as normal image.")
+            else:
+                print(f"❌ Failed to send slot image: {resp.status_code}")
         else:
-            print(f"❌ Failed to send slot image: {resp.status_code}")
-    else:
-        print("❌ Could not fetch slot image.")
+            print("❌ Could not fetch slot image.")
 
