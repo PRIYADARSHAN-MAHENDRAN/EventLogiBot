@@ -41,11 +41,16 @@ client = gspread.authorize(creds)
 
 
 def download_imgur_image(link):
-    image_id = link.strip().split("/")[-1]
-    direct_url = f"https://i.imgur.com/{image_id}.png"
-    response = requests.get(direct_url)
-    if response.status_code == 200:
-        return BytesIO(response.content), f"{image_id}.png"
+    try:
+        image_id = link.strip().split("/")[-1].split('.')[0].split('#')[0].split('?')[0]
+        formats = ['png', 'jpg', 'jpeg']
+        for fmt in formats:
+            direct_url = f"https://i.imgur.com/{image_id}.{fmt}"
+            response = requests.get(direct_url)
+            if response.status_code == 200:
+                return BytesIO(response.content), f"{image_id}.{fmt}"
+    except Exception as e:
+        print(f"Image download error: {e}")
     return None, None
 
 
