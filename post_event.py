@@ -10,12 +10,12 @@ from google.oauth2.service_account import Credentials
 
 # === Configuration ===
 
-ROLE_ID = "1335290367347658762"
-DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1349764291859054623/WCmkpgMVX_MkVlpNyBnC_2fycbgDnUNdzMTmZhCdTASythWRXm_oa0UuF1U8Y4SBIYWg'
+# ROLE_ID = "1335290367347658762"
+# DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1349764291859054623/WCmkpgMVX_MkVlpNyBnC_2fycbgDnUNdzMTmZhCdTASythWRXm_oa0UuF1U8Y4SBIYWg'
 SHEET_ID = '1xcTUTFmwirTCIAseDtgr0ev7cHJq8FAuGI7wHDa_yMg'
 
-# ROLE_ID = "1356018983496843294"  # Replace with your actual Discord role ID
-# DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1358492482580779119/o4-NQuKr1zsUb9rUZsB_EnlYNiZwb_N8uXNfxfIRiGsdR8kh4CoKliIlSb8qot-F0HHO'
+ROLE_ID = "1356018983496843294"  # Replace with your actual Discord role ID
+DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1358492482580779119/o4-NQuKr1zsUb9rUZsB_EnlYNiZwb_N8uXNfxfIRiGsdR8kh4CoKliIlSb8qot-F0HHO'
 # SHEET_ID = '1jTadn8TtRP4ip5ayN-UClntNmKDTGY70wdPgo7I7lRY'
 
 # === Time Setup ===
@@ -58,12 +58,11 @@ def parse_flexible_date(date_str):
 
 # === Time Conversion Helpers ===
 
-def utc_to_ist(utc_str):
-    """Convert UTC time string to IST (HH:MM)"""
+def utc_to_ist_ampm(utc_str):
     try:
         dt_utc = datetime.strptime(utc_str, "%Y-%m-%d %H:%M:%S")
         dt_ist = dt_utc + timedelta(hours=5, minutes=30)
-        return dt_ist.strftime("%H:%M")
+        return dt_ist.strftime("%I:%M %p")  # 12-hour format with AM/PM
     except Exception as e:
         print(f"Error converting UTC to IST: {e}")
         return "N/A"
@@ -178,10 +177,8 @@ for event_link, row in event_links_today:
         "fields": [
             {"name": "🛠 VTC", "value": event_data.get('vtc', {}).get("name", "Unknown VTC"), "inline": True},
             {"name": "📅 Date", "value": format_date(event_data.get("start_at", "")), "inline": True},
-            {"name": "⏰ Meetup (UTC)", "value": event_data.get("meetup_at", "").split(" ")[1][:5], "inline": True},
-            {"name": "⏰ Meetup (IST)", "value": utc_to_ist(event_data.get("meetup_at", "")), "inline": True},
-            {"name": "🚀 Start (UTC)", "value": event_data.get("start_at", "").split(" ")[1][:5], "inline": True},
-            {"name": "🚀 Start (IST)", "value": utc_to_ist(event_data.get("start_at", "")), "inline": True},
+            {"name": "⏰ Meetup","value": f"{event_data.get('meetup_at', '').split(' ')[1][:5]} UTC ({utc_to_ist_ampm(event_data.get('meetup_at', ''))} IST)","inline": False},
+            {"name": "🚀 Start","value": f"{event_data.get('start_at', '').split(' ')[1][:5]} UTC ({utc_to_ist_ampm(event_data.get('start_at', ''))} IST)","inline": False},
             {"name": "🖥 Server", "value": event_data.get("server", {}).get("name", "Unknown Server"), "inline": True},
             {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
             {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
