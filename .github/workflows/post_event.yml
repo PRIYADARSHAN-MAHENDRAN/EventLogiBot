@@ -47,9 +47,9 @@ jobs:
             fi
           fi
 
-      - name: Save Google credentials
-        run: |
-          echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}" > service_account.json
+      - name: Set GOOGLE_SERVICE_ACCOUNT_KEY env
+        run: echo "GOOGLE_SERVICE_ACCOUNT_KEY=${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}" >> $GITHUB_ENV
+
 
       - name: Install dependencies
         run: pip install -r requirements.txt
