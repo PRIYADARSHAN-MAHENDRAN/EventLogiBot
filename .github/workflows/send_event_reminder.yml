@@ -47,7 +47,7 @@ jobs:
         run: pip install gspread oauth2client requests pytz python-dateutil
 
       - name: Run reminder script
-        run: python reminder/reminder.py
+        run: python reminder.py
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
           DISCORD_WEBHOOK_URL: ${{ env.DISCORD_WEBHOOK_URL }}
