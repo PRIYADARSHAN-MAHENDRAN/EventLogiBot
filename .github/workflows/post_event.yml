@@ -47,9 +47,6 @@ jobs:
             fi
           fi
 
-      - name: Run script with GOOGLE_SERVICE_ACCOUNT_KEY
-        env:
-          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
 
 
       - name: Install dependencies
@@ -57,3 +54,5 @@ jobs:
 
       - name: Run script
         run: python post_event.py
+        env:
+          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
