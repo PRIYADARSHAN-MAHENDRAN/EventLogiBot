@@ -1,0 +1,54 @@
+name: ⏰ Event Reminder (1 Hour Before)
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # Runs every 5 minutes
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Choose environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - pro
+
+jobs:
+  send-reminder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Set ENV variables
+        id: set-env
+        run: |
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            echo "DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_REMINDER1 }}" >> $GITHUB_ENV
+            echo "GOOGLE_SHEET_ID=${{ secrets.SHEET_ID1 }}" >> $GITHUB_ENV
+          else
+            ENV_INPUT="${{ github.event.inputs.environment }}"
+            if [[ "$ENV_INPUT" == "pro" ]]; then
+              echo "DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_REMINDER1 }}" >> $GITHUB_ENV
+              echo "GOOGLE_SHEET_ID=${{ secrets.SHEET_ID1 }}" >> $GITHUB_ENV
+            else
+              echo "DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_REMINDER2 }}" >> $GITHUB_ENV
+              echo "GOOGLE_SHEET_ID=${{ secrets.SHEET_ID2 }}" >> $GITHUB_ENV
+            fi
+          fi
+
+      - name: Install dependencies
+        run: pip install gspread oauth2client requests pytz python-dateutil
+
+      - name: Run reminder script
+        run: python reminder/reminder.py
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          DISCORD_WEBHOOK_URL: ${{ env.DISCORD_WEBHOOK_URL }}
+          GOOGLE_SHEET_ID: ${{ env.GOOGLE_SHEET_ID }}
