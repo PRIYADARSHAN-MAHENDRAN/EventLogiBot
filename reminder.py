@@ -51,6 +51,9 @@ rows = worksheet.get_all_records()
 print(f"📄 Found {len(rows)} rows")
 
 # Loop through events
+today_str = now_ist.strftime('%Y-%m-%d')
+print(f"📅 Filtering events for today: {today_str}")
+
 for row in rows:
     event_link = row.get('TRUCKERSMP \nEVENT LINK ') 
     date_str = row.get('DATE')
@@ -59,17 +62,36 @@ for row in rows:
         print("⚠️ Skipping row due to missing event link or date.")
         continue
 
+    # Filter only today's events (in IST)
     try:
-        event_time = parser.parse(date_str)
-        event_time = event_time.replace(tzinfo=ist)
-        reminder_time = event_time - timedelta(hours=1)
-        print(f"🕐 Event: {event_link} | Event time: {event_time} | Reminder time: {reminder_time}")
+        sheet_date = parser.parse(date_str).astimezone(ist).date()
+        if sheet_date.strftime('%Y-%m-%d') != today_str:
+            continue
     except Exception as e:
-        print(f"❌ Failed to parse date: {date_str} | Error: {e}")
+        print(f"❌ Failed to parse sheet date: {date_str} | Error: {e}")
         continue
 
+    # Use API to get actual event timing
+    try:
+        event_id = event_link.split("/")[-1].split("-")[0]
+        api_url = f"https://api.truckersmp.com/v2/events/{event_id}"
+        res = requests.get(api_url)
+        if res.status_code != 200:
+            print(f"❌ Failed to fetch event API: {res.status_code}")
+            continue
+        data = res.json()['response']
+        event_time = datetime.strptime(data['start_at'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=utc).astimezone(ist)
+        reminder_time = event_time - timedelta(hours=1)
+        print(f"🕐 Event: {data['name']} | Event time: {event_time} | Reminder time: {reminder_time}")
+    except Exception as e:
+        print(f"❌ Error fetching event timing from API: {e}")
+        continue
+
+    # Send reminder if now == reminder time
     if now_ist.strftime('%Y-%m-%d %H:%M') == reminder_time.strftime('%Y-%m-%d %H:%M'):
         print("✅ Reminder time matched. Preparing to send Discord reminder...")
+        # (send Discord code block stays the same here)
+
         try:
             event_id = event_link.split("/")[-1].split("-")[0]
             api_url = f"https://api.truckersmp.com/v2/events/{event_id}"
