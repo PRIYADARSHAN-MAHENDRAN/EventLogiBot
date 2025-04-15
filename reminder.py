@@ -75,6 +75,6 @@ for row in rows:
                     }
                 ]
             }
-            requests.post(os.environ['DISCORD_WEBHOOK_REMINDER1'], json=embed)
+            requests.post(os.environ['DISCORD_WEBHOOK_URL'], json=embed)
         except Exception as e:
             print(f"Failed to send reminder: {e}")
