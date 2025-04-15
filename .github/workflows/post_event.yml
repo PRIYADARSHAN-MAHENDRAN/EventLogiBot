@@ -8,6 +8,10 @@ on:
 jobs:
   post-event:
     runs-on: ubuntu-latest
+    env:
+      SHEET_ID1: ${{ secrets.SHEET_ID1 }}
+      GOOGLE_APPLICATION_CREDENTIALS: service_account.json
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -20,8 +24,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Write service account credentials
+        run: echo '${{ secrets.GOOGLE_CREDS }}' > service_account.json
+
       - name: Run script
         run: python post_event.py
-        env:
-          GOOGLE_SERVICE_ACCOUNT_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
-
