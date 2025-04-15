@@ -2,15 +2,21 @@ name: Post Today’s TruckersMP Event
 
 on:
   schedule:
-    - cron: '30 18 * * *'  # Runs every day at 12:00 AM UTC
-  workflow_dispatch:     # Allows manual trigger
+    - cron: '30 18 * * *'  # Runs daily at 12:00 AM IST (18:30 UTC)
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select environment'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - pro
 
 jobs:
   post-event:
     runs-on: ubuntu-latest
-    env:
-      SHEET_ID1: ${{ secrets.SHEET_ID1 }}
-      GOOGLE_APPLICATION_CREDENTIALS: service_account.json
 
     steps:
       - name: Checkout repository
@@ -21,11 +27,32 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Set ENV based on trigger
+        id: set-env
+        run: |
+          if [[ "${{ github.event_name }}" == "schedule" ]]; then
+            echo "ROLE_ID=${{ secrets.ROLE_ID1 }}" >> $GITHUB_ENV
+            echo "DISCORD_WEBHOOK=${{ secrets.DISCORD_WEBHOOK1 }}" >> $GITHUB_ENV
+            echo "SHEET_ID=${{ secrets.SHEET_ID1 }}" >> $GITHUB_ENV
+          else
+            ENV_INPUT="${{ github.event.inputs.environment }}"
+            if [[ "$ENV_INPUT" == "pro" ]]; then
+              echo "ROLE_ID=${{ secrets.ROLE_ID1 }}" >> $GITHUB_ENV
+              echo "DISCORD_WEBHOOK=${{ secrets.DISCORD_WEBHOOK1 }}" >> $GITHUB_ENV
+              echo "SHEET_ID=${{ secrets.SHEET_ID1 }}" >> $GITHUB_ENV
+            else
+              echo "ROLE_ID=${{ secrets.ROLE_ID2 }}" >> $GITHUB_ENV
+              echo "DISCORD_WEBHOOK=${{ secrets.DISCORD_WEBHOOK2 }}" >> $GITHUB_ENV
+              echo "SHEET_ID=${{ secrets.SHEET_ID2 }}" >> $GITHUB_ENV
+            fi
+          fi
+
+      - name: Save Google credentials
+        run: |
+          echo "${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}" > service_account.json
+
       - name: Install dependencies
         run: pip install -r requirements.txt
-
-      - name: Write service account credentials
-        run: echo '${{ secrets.GOOGLE_CREDS }}' > service_account.json
 
       - name: Run script
         run: python post_event.py
