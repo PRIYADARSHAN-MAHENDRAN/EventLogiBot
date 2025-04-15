@@ -62,16 +62,15 @@ for row in rows:
         print("⚠️ Skipping row due to missing event link or date.")
         continue
 
-    # Filter only today's events (in IST)
     try:
-        sheet_date = parser.parse(date_str).astimezone(ist).date()
+        safe_date_str = date_str.replace('.', ':')
+        sheet_date = parser.parse(safe_date_str).astimezone(ist).date()
         if sheet_date.strftime('%Y-%m-%d') != today_str:
             continue
     except Exception as e:
         print(f"❌ Failed to parse sheet date: {date_str} | Error: {e}")
         continue
 
-    # Use API to get actual event timing
     try:
         event_id = event_link.split("/")[-1].split("-")[0]
         api_url = f"https://api.truckersmp.com/v2/events/{event_id}"
@@ -82,10 +81,12 @@ for row in rows:
         data = res.json()['response']
         event_time = datetime.strptime(data['start_at'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=utc).astimezone(ist)
         reminder_time = event_time - timedelta(hours=1)
-        print(f"🕐 Event: {data['name']} | Event time: {event_time} | Reminder time: {reminder_time}")
+
+        print(f"🕐 Event: {data['name']} | Event time: {event_time.strftime('%Y-%m-%d %H:%M:%S')} IST | Reminder time: {reminder_time.strftime('%Y-%m-%d %H:%M:%S')} IST | Current time: {now_ist.strftime('%Y-%m-%d %H:%M:%S')} IST")
     except Exception as e:
         print(f"❌ Error fetching event timing from API: {e}")
         continue
+
 
     # Send reminder if now == reminder time
     if now_ist.strftime('%Y-%m-%d %H:%M') == reminder_time.strftime('%Y-%m-%d %H:%M'):
