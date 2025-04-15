@@ -12,11 +12,12 @@ ist = pytz.timezone("Asia/Kolkata")
 now_utc = datetime.utcnow().replace(tzinfo=utc)
 
 # Authenticate
-creds_dict = eval(os.environ['GOOGLE_SERVICE_ACCOUNT_JSON'])
+creds_dict = json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT_KEY"])
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 sheet = client.open_by_key(os.environ['GOOGLE_SHEET_ID'])
+
 
 # Determine month sheet
 month_name = now_utc.strftime('%B %Y')
