@@ -52,8 +52,8 @@ print(f"📄 Found {len(rows)} rows")
 
 # Loop through events
 for row in rows:
-    event_link = row.get('Event Link') or row.get('event link') or row.get('Link')
-    date_str = row.get('Date') or row.get('date')
+    event_link = row.get('TRUCKERSMP \nEVENT LINK ') 
+    date_str = row.get('DATE')
 
     if not event_link or not date_str:
         print("⚠️ Skipping row due to missing event link or date.")
