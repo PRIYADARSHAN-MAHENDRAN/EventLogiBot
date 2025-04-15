@@ -88,8 +88,9 @@ for row in rows:
         continue
 
 
-    # Send reminder if now == reminder time
-    if now_ist.strftime('%Y-%m-%d %H:%M') == reminder_time.strftime('%Y-%m-%d %H:%M'):
+    time_diff = (now_ist - reminder_time).total_seconds()
+
+    if 0 <= time_diff <= 300:
         print("✅ Reminder time matched. Preparing to send Discord reminder...")
         # (send Discord code block stays the same here)
 
