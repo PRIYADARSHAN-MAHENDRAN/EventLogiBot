@@ -36,15 +36,19 @@ except Exception as e:
     print(f"❌ Failed to open Google Sheet: {e}")
     exit(1)
 
-# Determine month sheet
-month_name = now_ist.strftime('%B %Y')
-print(f"🔍 Looking for sheet: {month_name}")
+# Get today's month and year
+today = datetime.utcnow()
+month_name = today.strftime("%b").upper()  # "APR", "MAY", etc.
+year = today.strftime("%Y")
+
+sheet_name = f"{month_name}-{year}"  # Result: "APR-2025"
+print(f"🔍 Looking for sheet: {sheet_name}")
 
 try:
-    worksheet = sheet.worksheet(month_name)
-    print(f"✅ Found worksheet: {month_name}")
+    worksheet = sheet.worksheet(sheet_name)
+    print(f"✅ Found worksheet: {sheet_name}")
 except:
-    print(f"❌ Worksheet {month_name} not found")
+    print(f"❌ Worksheet {sheet_name} not found")
     exit(1)
 
 rows = worksheet.get_all_records()
