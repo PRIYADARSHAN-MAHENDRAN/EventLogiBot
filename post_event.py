@@ -208,8 +208,8 @@ for event_link, row in event_links_today:
             {"name": "⏰ Meetup Time","value": f"{event_data.get('meetup_at', '').split(' ')[1][:5]} UTC ({utc_to_ist_ampm(event_data.get('meetup_at', ''))} IST)","inline": True},
             {"name": "🚀 Departure Time","value": f"{event_data.get('start_at', '').split(' ')[1][:5]} UTC ({utc_to_ist_ampm(event_data.get('start_at', ''))} IST)","inline": True},
             {"name": "🖥 Server", "value": event_data.get("server", {}).get("name", "Unknown Server"), "inline": True},
-            {"name": "🚏 Departure", "value": event_data.get("departure", {}).get("city", "Unknown"), "inline": True},
-            {"name": "🎯 Arrival", "value": event_data.get("arrival", {}).get("city", "Unknown"), "inline": True},
+            {"name": "🚏 Departure","value": f'{event_data.get("departure", {}).get("city", "Unknown")} ({event_data.get("departure", {}).get("location", "Unknown")})',"inline": True},
+            {"name": "🎯 Arrival","value": f'{event_data.get("arrive", {}).get("city", "Unknown")} ({event_data.get("arrive", {}).get("location", "Unknown")})',"inline": True},
             {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True},
             {"name": "🪧 Slot Number", "value": slot_no or "N/A", "inline": True},
             {
