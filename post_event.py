@@ -193,6 +193,12 @@ for event_link, row in event_links_today:
     # === Extract slot info from Google Sheet row ===
     slot_no = row[9].strip() if len(row) > 9 and row[9].strip() else None
     slot_link = row[10].strip() if len(row) > 10 and row[10].strip() else None
+    dlcs = event_data.get("dlcs", {})
+    if dlcs:
+        dlc_id, dlc_name = next(iter(dlcs.items()))
+        dlc_display = f"{dlc_name}"
+    else:
+        dlc_display = "Base Map"
 
     # === Prepare Discord Embed ===
     thumbnail_url = event_data.get("banner")
@@ -210,7 +216,7 @@ for event_link, row in event_links_today:
             {"name": "🖥 Server", "value": event_data.get("server", {}).get("name", "Unknown Server"), "inline": True},
             {"name": "🚏 Departure","value": f'{event_data.get("departure", {}).get("city", "Unknown")} ({event_data.get("departure", {}).get("location", "Unknown")})',"inline": True},
             {"name": "🎯 Arrival","value": f'{event_data.get("arrive", {}).get("city", "Unknown")} ({event_data.get("arrive", {}).get("location", "Unknown")})',"inline": True},
-            {"name": "🗺 DLC Req", "value": get_dlc_names(event_data.get("dlcs", [])), "inline": True},
+            {"name": "🗺 DLC Req","value": dlc_display,"inline": True},
             {"name": "🪧 Slot Number", "value": slot_no or "N/A", "inline": True},
             {
             "name": "🔗 Links",
