@@ -39,47 +39,45 @@ client = gspread.authorize(creds)
 
 def download_imgur_image(link):
     try:
-        if "i.imgur.com" in link:
-            # Direct link
-            direct_url = link
-        elif "imgur.com/a/" in link or "imgur.com/gallery/" in link:
-            # Handle album/gallery links
-            headers = {"User-Agent": "Mozilla/5.0"}
-            response = requests.get(link, headers=headers)
-            if response.status_code != 200:
-                print(f"❌ Failed to fetch Imgur album page: {response.status_code}")
+        # If it's a direct Discord or general image link (jpg/png/webp/etc.)
+        if any(link.endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".webp"]):
+            response = requests.get(link)
+            if response.status_code == 200:
+                filename = link.split("/")[-1].split("?")[0]
+                return BytesIO(response.content), filename
+            else:
+                print(f"❌ Failed to fetch image from: {link}")
                 return None, None
 
-            soup = BeautifulSoup(response.text, "lxml")
-            img_tag = soup.find("meta", property="og:image")
-            if img_tag and img_tag["content"]:
-                direct_url = img_tag["content"]
-            else:
-                print("❌ Could not extract image from Imgur album.")
+        # If it's an Imgur album or regular link
+        if "imgur.com" in link:
+            if "/a/" in link:
+                print("❌ Imgur album links are not directly supported.")
                 return None, None
-        elif "imgur.com" in link:
-            # Regular non-direct image link
-            image_id = link.strip().split("/")[-1].split("?")[0]
+
+            image_id = link.strip().split("/")[-1].split("?")[0].split("#")[0]
             head = requests.head(f"https://imgur.com/{image_id}", allow_redirects=True)
             if "image/" in head.headers.get("Content-Type", ""):
                 ext = head.headers["Content-Type"].split("/")[-1]
                 direct_url = f"https://i.imgur.com/{image_id}.{ext}"
             else:
                 direct_url = f"https://i.imgur.com/{image_id}.jpg"
-        else:
-            print("❌ Not an Imgur link.")
-            return None, None
 
-        # Download image
-        response = requests.get(direct_url)
-        if response.status_code == 200:
-            filename = direct_url.split("/")[-1]
-            return BytesIO(response.content), filename
-        else:
-            print(f"❌ Failed to fetch image from: {direct_url}")
+            response = requests.get(direct_url)
+            if response.status_code == 200:
+                filename = direct_url.split("/")[-1]
+                return BytesIO(response.content), filename
+            else:
+                print(f"❌ Failed to fetch image from: {direct_url}")
+                return None, None
+
+        print("❌ Unsupported image link format.")
+        return None, None
+
     except Exception as e:
         print(f"❌ Exception in download_imgur_image: {e}")
-    return None, None
+        return None, None
+
 
 
 # === Date Parsing Helper ===
