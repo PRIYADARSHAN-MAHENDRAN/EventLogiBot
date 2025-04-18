@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from pytz import timezone
 from google.oauth2.service_account import Credentials
 from io import BytesIO
+from bs4 import BeautifulSoup
 
 
 
@@ -39,21 +40,37 @@ client = gspread.authorize(creds)
 def download_imgur_image(link):
     try:
         if "i.imgur.com" in link:
+            # Direct link
             direct_url = link
+        elif "imgur.com/a/" in link or "imgur.com/gallery/" in link:
+            # Handle album/gallery links
+            headers = {"User-Agent": "Mozilla/5.0"}
+            response = requests.get(link, headers=headers)
+            if response.status_code != 200:
+                print(f"❌ Failed to fetch Imgur album page: {response.status_code}")
+                return None, None
+
+            soup = BeautifulSoup(response.text, "lxml")
+            img_tag = soup.find("meta", property="og:image")
+            if img_tag and img_tag["content"]:
+                direct_url = img_tag["content"]
+            else:
+                print("❌ Could not extract image from Imgur album.")
+                return None, None
         elif "imgur.com" in link:
+            # Regular non-direct image link
             image_id = link.strip().split("/")[-1].split("?")[0]
-            # First, try fetching without extension to let Imgur redirect us
             head = requests.head(f"https://imgur.com/{image_id}", allow_redirects=True)
             if "image/" in head.headers.get("Content-Type", ""):
                 ext = head.headers["Content-Type"].split("/")[-1]
                 direct_url = f"https://i.imgur.com/{image_id}.{ext}"
             else:
-                # fallback to .jpg
                 direct_url = f"https://i.imgur.com/{image_id}.jpg"
         else:
             print("❌ Not an Imgur link.")
             return None, None
 
+        # Download image
         response = requests.get(direct_url)
         if response.status_code == 200:
             filename = direct_url.split("/")[-1]
