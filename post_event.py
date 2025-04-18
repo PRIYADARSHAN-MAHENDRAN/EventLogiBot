@@ -37,9 +37,16 @@ creds = Credentials.from_service_account_info(keyfile_dict, scopes=[
 client = gspread.authorize(creds)
 
 
+
+IMGUR_CLIENT_ID = "3dd4c42bea4ea10"  # Replace with your actual Client ID
+
 def download_imgur_image(link):
     try:
-        # If it's a direct Discord or general image link (jpg/png/webp/etc.)
+        headers = {
+            "Authorization": f"Client-ID {IMGUR_CLIENT_ID}"
+        }
+
+        # If it's a direct image link
         if any(link.endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".webp"]):
             response = requests.get(link)
             if response.status_code == 200:
@@ -49,26 +56,39 @@ def download_imgur_image(link):
                 print(f"❌ Failed to fetch image from: {link}")
                 return None, None
 
-        # If it's an Imgur album or regular link
-        if "imgur.com" in link:
-            if "/a/" in link:
-                print("❌ Imgur album links are not directly supported.")
+        # If it's an Imgur album link
+        if "imgur.com/a/" in link:
+            album_id = link.split("/a/")[-1].split("/")[0].split("?")[0]
+            api_url = f"https://api.imgur.com/3/album/{album_id}/images"
+            response = requests.get(api_url, headers=headers)
+            if response.status_code == 200:
+                images = response.json().get("data", [])
+                if images:
+                    direct_url = images[0]["link"]
+                    image_response = requests.get(direct_url)
+                    if image_response.status_code == 200:
+                        filename = direct_url.split("/")[-1]
+                        return BytesIO(image_response.content), filename
+                print("❌ No images found in the Imgur album.")
+                return None, None
+            else:
+                print(f"❌ Failed to fetch album info: {response.status_code} {response.text}")
                 return None, None
 
+        # If it's a regular Imgur page (e.g. imgur.com/abc123)
+        if "imgur.com" in link:
             image_id = link.strip().split("/")[-1].split("?")[0].split("#")[0]
-            head = requests.head(f"https://imgur.com/{image_id}", allow_redirects=True)
-            if "image/" in head.headers.get("Content-Type", ""):
-                ext = head.headers["Content-Type"].split("/")[-1]
-                direct_url = f"https://i.imgur.com/{image_id}.{ext}"
-            else:
-                direct_url = f"https://i.imgur.com/{image_id}.jpg"
-
-            response = requests.get(direct_url)
+            api_url = f"https://api.imgur.com/3/image/{image_id}"
+            response = requests.get(api_url, headers=headers)
             if response.status_code == 200:
-                filename = direct_url.split("/")[-1]
-                return BytesIO(response.content), filename
+                data = response.json()["data"]
+                direct_url = data["link"]
+                image_response = requests.get(direct_url)
+                if image_response.status_code == 200:
+                    filename = direct_url.split("/")[-1]
+                    return BytesIO(image_response.content), filename
             else:
-                print(f"❌ Failed to fetch image from: {direct_url}")
+                print(f"❌ Failed to fetch image info: {response.status_code} {response.text}")
                 return None, None
 
         print("❌ Unsupported image link format.")
@@ -77,6 +97,7 @@ def download_imgur_image(link):
     except Exception as e:
         print(f"❌ Exception in download_imgur_image: {e}")
         return None, None
+
 
 
 
