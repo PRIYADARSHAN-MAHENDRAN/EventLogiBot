@@ -264,7 +264,7 @@ for event_link, row in event_links_today:
                     f"**Event**: {event_link}\n\n"
                     + (f"**Map**: {event_data.get('map')}\n\n" if event_data.get('map') else "")
                     + (f"**Slot**: {slot_link}\n\n" if slot_link else "")
-                    + "\n**💬 Thank You Message:**\n\n"
+                    + "**💬 Thank You Message:**\n\n"
                     + f"💛 Thank you, {event_data.get('vtc', {}).get('name', 'your VTC')}. "
                       f"For inviting us to your {event_data.get('name', 'event')}. "
                       f"We had a great time and enjoyed it a lot! - TAMILNADU LOGISTICS 💛"
