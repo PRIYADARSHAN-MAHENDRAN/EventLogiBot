@@ -274,6 +274,7 @@ for event_link, row in event_links_today:
     ],
     "footer": {"text": "by TNL | PRIYADARSHAN"},
     "timestamp": timestamp_ist
+
 }
 
     # === Send to Discord Webhook ===
@@ -293,6 +294,13 @@ for event_link, row in event_links_today:
     else:
         print(f"❌ Failed to post event {event_id} to Discord: {resp.status_code}")
         print(resp.text)
+    map_url = event_data.get("map")
+
+    if map_url:
+        img_payload = {
+            "content": f"🗺️ **Route Map for {event_data.get('name', 'Event')}**\n{map_url}"
+        }
+    requests.post(DISCORD_WEBHOOK, headers=headers, json=img_payload)
     if slot_link:
         print(f"📸 Slot image link: {slot_link}")
         image_file, filename = download_imgur_image(slot_link)
