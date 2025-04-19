@@ -240,21 +240,31 @@ for event_link, row in event_links_today:
     thumbnail_url = event_data.get("banner")
 
     embed = {
-        "image": {"url": thumbnail_url},
-        "title": f"📅 {event_data.get('name', 'TruckersMP Event')}",
-        "url": event_link,
-        "color": 16776960,
-        "fields": [
-            {"name": "🛠 VTC", "value": event_data.get('vtc', {}).get("name", "Unknown VTC"), "inline": True},
-            {"name": "📅 Date", "value": format_date(event_data.get("start_at", "")), "inline": True},
-            {"name": "⏰ Meetup Time","value": f"{event_data.get('meetup_at', '').split(' ')[1][:5]} UTC ({utc_to_ist_ampm(event_data.get('meetup_at', ''))} IST)","inline": True},
-            {"name": "🚀 Departure Time","value": f"{event_data.get('start_at', '').split(' ')[1][:5]} UTC ({utc_to_ist_ampm(event_data.get('start_at', ''))} IST)","inline": True},
-            {"name": "🖥 Server", "value": event_data.get("server", {}).get("name", "Unknown Server"), "inline": True},
-            {"name": "🚏 Departure","value": f'{event_data.get("departure", {}).get("city", "Unknown")} ({event_data.get("departure", {}).get("location", "Unknown")})',"inline": True},
-            {"name": "🎯 Arrival","value": f'{event_data.get("arrive", {}).get("city", "Unknown")} ({event_data.get("arrive", {}).get("location", "Unknown")})',"inline": True},
-            {"name": "🗺 DLC Req","value": dlc_display,"inline": True},
-            {"name": "🪧 Slot Number", "value": slot_no or "N/A", "inline": True},
-            {
+    "image": {"url": thumbnail_url},
+    "title": f"📅 {event_data.get('name', 'TruckersMP Event')}",
+    "url": event_link,
+    "color": 16776960,
+    "fields": [
+        {
+            "name": "📋 Event Details",
+            "value": (
+                f"🛠 VTC : {event_data.get('vtc', {}).get('name', 'Unknown VTC')}\n"
+                f"📅 Date : {format_date(event_data.get('start_at', ''))}\n"
+                f"⏰ Meetup Time : {event_data.get('meetup_at', '').split(' ')[1][:5]} UTC "
+                f"({utc_to_ist_ampm(event_data.get('meetup_at', ''))} IST)\n"
+                f"🚀 Departure Time : {event_data.get('start_at', '').split(' ')[1][:5]} UTC "
+                f"({utc_to_ist_ampm(event_data.get('start_at', ''))} IST)\n"
+                f"🖥 Server : {event_data.get('server', {}).get('name', 'Unknown Server')}\n"
+                f"🚏 Departure : {event_data.get('departure', {}).get('city', 'Unknown')} "
+                f"({event_data.get('departure', {}).get('location', 'Unknown')})\n"
+                f"🎯 Arrival : {event_data.get('arrive', {}).get('city', 'Unknown')} "
+                f"({event_data.get('arrive', {}).get('location', 'Unknown')})\n"
+                f"🗺 DLC Req : {dlc_display}\n"
+                f"🪧 Slot Number : {slot_no or 'N/A'}\n"
+            ),
+            "inline": False
+        },
+        {
             "name": "🔗 Links",
             "value": (
                 f"Event: {event_link}" +
@@ -271,9 +281,9 @@ for event_link, row in event_links_today:
             "inline": False
         }
     ],
-        "footer": {"text": "by TNL | PRIYADARSHAN"},
+    "footer": {"text": "by TNL | PRIYADARSHAN"},
     "timestamp": timestamp_ist
-    }
+}
 
     # === Send to Discord Webhook ===
     headers = {
