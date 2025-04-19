@@ -279,7 +279,7 @@ for event_link, row in event_links_today:
         # },
         {
             "name": "**💬 Thank You Message:**\n",
-            "value": f"\n💛 Thank you, {event_data.get('vtc', {}).get('name', 'your VTC')}. "
+            "value": f"\n\n💛 Thank you, {event_data.get('vtc', {}).get('name', 'your VTC')}. "
                      f"For inviting us to your {event_data.get('name', 'event')}. "
                      f"We had a great time and enjoyed it a lot! - TAMILNADU LOGISTICS 💛",
             "inline": False
