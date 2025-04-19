@@ -261,22 +261,25 @@ for event_link, row in event_links_today:
                 f"({event_data.get('arrive', {}).get('location', 'Unknown')})\n\n"
                 f"**🗺 DLC Req** : {dlc_display}\n\n"
                 f"**🪧 Slot Number** : {slot_no or 'N/A'}\n\n"
-            ),
-
-            "inline": False
-        },
-        {
-            "name": "**🔗 Links**",
-            "value": (
                 f"**Event**: {event_link}\n\n" +
                 (f"**Map**: {event_data.get('map')}\n\n" if event_data.get('map') else "") +
                 (f"**Slot**: {slot_link}\n\n" if slot_link else "")
             ),
+
             "inline": False
         },
+        # {
+        #     "name": "**🔗 Links**",
+        #     "value": (
+        #         f"**Event**: {event_link}\n\n" +
+        #         (f"**Map**: {event_data.get('map')}\n\n" if event_data.get('map') else "") +
+        #         (f"**Slot**: {slot_link}\n\n" if slot_link else "")
+        #     ),
+        #     "inline": False
+        # },
         {
             "name": "**💬 Thank You Message:**\n",
-            "value": f"💛 Thank you, {event_data.get('vtc', {}).get('name', 'your VTC')}. "
+            "value": f"\n💛 Thank you, {event_data.get('vtc', {}).get('name', 'your VTC')}. "
                      f"For inviting us to your {event_data.get('name', 'event')}. "
                      f"We had a great time and enjoyed it a lot! - TAMILNADU LOGISTICS 💛",
             "inline": False
