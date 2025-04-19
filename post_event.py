@@ -269,25 +269,8 @@ for event_link, row in event_links_today:
                       f"For inviting us to your {event_data.get('name', 'event')}. "
                       f"We had a great time and enjoyed it a lot! - TAMILNADU LOGISTICS 💛"
                 ),
-
             "inline": False
         },
-        # {
-        #     "name": "**🔗 Links**",
-        #     "value": (
-        #         f"**Event**: {event_link}\n\n" +
-        #         (f"**Map**: {event_data.get('map')}\n\n" if event_data.get('map') else "") +
-        #         (f"**Slot**: {slot_link}\n\n" if slot_link else "")
-        #     ),
-        #     "inline": False
-        # },
-        {
-            "name": "**💬 Thank You Message:**\n",
-            "value": f"\n\n💛 Thank you, {event_data.get('vtc', {}).get('name', 'your VTC')}. "
-                     f"For inviting us to your {event_data.get('name', 'event')}. "
-                     f"We had a great time and enjoyed it a lot! - TAMILNADU LOGISTICS 💛",
-            "inline": False
-        }
     ],
     "footer": {"text": "by TNL | PRIYADARSHAN"},
     "timestamp": timestamp_ist
