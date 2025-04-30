@@ -263,25 +263,31 @@ for event_link, row in event_links_today:
         }
         requests.post(DISCORD_WEBHOOK, headers=headers, json=map_payload)
     
-    # === Send Slot Image separately (once only) ===
     if slot_link:
-        print(f"📸 Slot image link: {slot_link}")
-        image_file, filename = download_imgur_image(slot_link)
-        if image_file:
-            image_file.seek(0)
-            files = {
-                'file': (filename, image_file, 'image/png')
-            }
-            data = {
-                "payload_json": json.dumps({
-                    "content": f"📸 **Slot Image for {event_data.get('name', 'Event')}**\n{slot_link}"
-                })
-            }
-            resp = requests.post(DISCORD_WEBHOOK, data=data, files=files)
+        slot_payload = {
+            "content": f"📸 **Slot Image for {event_data.get('name', 'Event')}**\n{map_url}"
+        }
+        requests.post(DISCORD_WEBHOOK, headers=headers, json=slot_payload)
     
-            if resp.status_code in [200, 204]:
-                print("✅ Slot image sent with caption.")
-            else:
-                print(f"❌ Failed to send slot image: {resp.status_code}")
-        else:
-            print("❌ Could not fetch slot image.")
+    # === Send Slot Image separately (once only) ===
+    # if slot_link:
+    #     print(f"📸 Slot image link: {slot_link}")
+    #     image_file, filename = download_imgur_image(slot_link)
+    #     if image_file:
+    #         image_file.seek(0)
+    #         files = {
+    #             'file': (filename, image_file, 'image/png')
+    #         }
+    #         data = {
+    #             "payload_json": json.dumps({
+    #                 "content": f"📸 **Slot Image for {event_data.get('name', 'Event')}**\n{slot_link}"
+    #             })
+    #         }
+    #         resp = requests.post(DISCORD_WEBHOOK, data=data, files=files)
+    
+    #         if resp.status_code in [200, 204]:
+    #             print("✅ Slot image sent with caption.")
+    #         else:
+    #             print(f"❌ Failed to send slot image: {resp.status_code}")
+    #     else:
+    #         print("❌ Could not fetch slot image.")
