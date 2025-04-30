@@ -43,55 +43,42 @@ IMGUR_CLIENT_ID = "3dd4c42bea4ea10"  # Replace with your actual Client ID
 def download_imgur_image(link):
     try:
         headers = {
-            "Authorization": f"Client-ID {IMGUR_CLIENT_ID}"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
         }
 
-        # If it's a direct image link
+        # Direct image link
         if any(link.endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".webp"]):
-            response = requests.get(link)
+            response = requests.get(link, headers=headers)
             if response.status_code == 200:
                 filename = link.split("/")[-1].split("?")[0]
                 return BytesIO(response.content), filename
             else:
-                print(f"❌ Failed to fetch image from: {link}")
+                print(f"❌ Failed to fetch image. Status code: {response.status_code}")
                 return None, None
 
-        # If it's an Imgur album link
-        if "imgur.com/a/" in link:
-            album_id = link.split("/a/")[-1].split("/")[0].split("?")[0]
-            api_url = f"https://api.imgur.com/3/album/{album_id}/images"
-            response = requests.get(api_url, headers=headers)
+        # Regular Imgur page (e.g., https://imgur.com/xyz)
+        if "imgur.com" in link and "i.imgur.com" not in link:
+            response = requests.get(link, headers=headers)
             if response.status_code == 200:
-                images = response.json().get("data", [])
-                if images:
-                    direct_url = images[0]["link"]
-                    image_response = requests.get(direct_url)
-                    if image_response.status_code == 200:
-                        filename = direct_url.split("/")[-1]
-                        return BytesIO(image_response.content), filename
-                print("❌ No images found in the Imgur album.")
-                return None, None
+                soup = BeautifulSoup(response.text, "html.parser")
+                meta = soup.find("meta", property="og:image")
+                if meta and meta.get("content"):
+                    image_url = meta["content"]
+                    img_response = requests.get(image_url, headers=headers)
+                    if img_response.status_code == 200:
+                        filename = image_url.split("/")[-1].split("?")[0]
+                        return BytesIO(img_response.content), filename
+                    else:
+                        print(f"❌ Failed to fetch image from parsed meta: {img_response.status_code}")
+                        return None, None
+                else:
+                    print("❌ No image meta tag found on the Imgur page.")
+                    return None, None
             else:
-                print(f"❌ Failed to fetch album info: {response.status_code} {response.text}")
+                print(f"❌ Failed to load Imgur page. Status code: {response.status_code}")
                 return None, None
 
-        # If it's a regular Imgur page (e.g. imgur.com/abc123)
-        if "imgur.com" in link:
-            image_id = link.strip().split("/")[-1].split("?")[0].split("#")[0]
-            api_url = f"https://api.imgur.com/3/image/{image_id}"
-            response = requests.get(api_url, headers=headers)
-            if response.status_code == 200:
-                data = response.json()["data"]
-                direct_url = data["link"]
-                image_response = requests.get(direct_url)
-                if image_response.status_code == 200:
-                    filename = direct_url.split("/")[-1]
-                    return BytesIO(image_response.content), filename
-            else:
-                print(f"❌ Failed to fetch image info: {response.status_code} {response.text}")
-                return None, None
-
-        print("❌ Unsupported image link format.")
+        print("❌ Unsupported or invalid Imgur URL format.")
         return None, None
 
     except Exception as e:
