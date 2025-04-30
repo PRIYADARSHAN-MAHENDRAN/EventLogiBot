@@ -38,7 +38,7 @@ client = gspread.authorize(creds)
 
 
 
-IMGUR_CLIENT_ID = "3dd4c42bea4ea10"  # Replace with your actual Client ID
+
 
 def download_imgur_image(link):
     try:
@@ -127,31 +127,6 @@ def format_date(utc_str):
         print(f"Error formatting date: {e}")
         return "N/A"
 
-# === DLC Mapping (from TruckersMP DLC IDs) ===
-
-DLC_ID_MAP = {
-    304212: "Going East!",
-    304213: "Scandinavia",
-    304215: "Vive la France!",
-    304216: "Italia",
-    304217: "Beyond the Baltic Sea",
-    304218: "Road to the Black Sea",
-    304219: "Iberia",
-    304220: "West Balkans",
-    461910: "Heavy Cargo Pack",
-    558244: "Special Transport",
-    258666: "High Power Cargo Pack",
-    620610: "Krone Trailer Pack",
-    388470: "Cabin Accessories",
-    297721: "Wheel Tuning Pack",
-    645630: "Schwarzmüller Trailer Pack",
-}
-
-def get_dlc_names(dlc_ids):
-    """Convert list of DLC IDs to human-readable names"""
-    if not dlc_ids:
-        return "Base Map"
-    return ", ".join(DLC_ID_MAP.get(int(dlc_id), f"Unknown ({dlc_id})") for dlc_id in dlc_ids)
 
 # === Step 1: Get Today’s Event Links from Google Sheet ===
 
@@ -296,7 +271,10 @@ for event_link, row in event_links_today:
             files = {
                 'file': (filename, image_file, 'image/png')
             }
-            resp = requests.post(DISCORD_WEBHOOK, files=files)
+            data = {
+            "content": f"🗺️ **Slot Image for {event_data.get('name', 'Event')}**\n{slot_link}"
+            }
+            resp = requests.post(DISCORD_WEBHOOK, data=data, files=files)
     
             if resp.status_code in [200, 204]:
                 print("✅ Slot image sent as normal image.")
