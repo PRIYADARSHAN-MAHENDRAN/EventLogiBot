@@ -265,7 +265,7 @@ for event_link, row in event_links_today:
     
     if slot_link:
         slot_payload = {
-            "content": f"📸 **Slot Image for {event_data.get('name', 'Event')}**\n{map_url}"
+            "content": f"📸 **Slot Image for {event_data.get('name', 'Event')}**\n{slot_link}"
         }
         requests.post(DISCORD_WEBHOOK, headers=headers, json=slot_payload)
     
