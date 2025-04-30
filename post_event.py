@@ -261,13 +261,26 @@ for event_link, row in event_links_today:
         map_payload = {
             "content": f"🗺️ **Route Map for {event_data.get('name', 'Event')}**\n{map_url}"
         }
-        requests.post(DISCORD_WEBHOOK, headers=headers, json=map_payload)
+        reps=requests.post(DISCORD_WEBHOOK, headers=headers, json=map_payload)
+        if resp.status_code in [200, 204]:
+            print("✅ Map image sent with caption.")
+        else:
+            print(f"❌ Failed to send map image: {resp.status_code}")
+    else:
+        print("❌ Could not fetch map image.")
+
     
     if slot_link:
         slot_payload = {
             "content": f"📸 **Slot Image for {event_data.get('name', 'Event')}**\n{slot_link}"
         }
-        requests.post(DISCORD_WEBHOOK, headers=headers, json=slot_payload)
+        resp=requests.post(DISCORD_WEBHOOK, headers=headers, json=slot_payload)
+        if resp.status_code in [200, 204]:
+            print("✅ Slot image sent with caption.")
+        else:
+            print(f"❌ Failed to send slot image: {resp.status_code}")
+    else:
+        print("❌ Could not fetch slot image.")
     
     # === Send Slot Image separately (once only) ===
     # if slot_link:
