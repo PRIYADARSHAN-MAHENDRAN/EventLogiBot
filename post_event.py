@@ -2,12 +2,14 @@ import os
 import gspread
 import requests
 import json
+import time
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime, timedelta
 from pytz import timezone
 from google.oauth2.service_account import Credentials
 from io import BytesIO
 from bs4 import BeautifulSoup
+
 
 
 
@@ -35,58 +37,6 @@ creds = Credentials.from_service_account_info(keyfile_dict, scopes=[
     "https://www.googleapis.com/auth/drive"
 ])
 client = gspread.authorize(creds)
-
-
-
-
-
-def download_imgur_image(link):
-    try:
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
-        }
-
-        # Direct image link
-        if any(link.endswith(ext) for ext in [".jpg", ".jpeg", ".png", ".webp"]):
-            response = requests.get(link, headers=headers)
-            if response.status_code == 200:
-                filename = link.split("/")[-1].split("?")[0]
-                return BytesIO(response.content), filename
-            else:
-                print(f"❌ Failed to fetch image. Status code: {response.status_code}")
-                return None, None
-
-        # Regular Imgur page (e.g., https://imgur.com/xyz)
-        if "imgur.com" in link and "i.imgur.com" not in link:
-            response = requests.get(link, headers=headers)
-            if response.status_code == 200:
-                soup = BeautifulSoup(response.text, "html.parser")
-                meta = soup.find("meta", property="og:image")
-                if meta and meta.get("content"):
-                    image_url = meta["content"]
-                    img_response = requests.get(image_url, headers=headers)
-                    if img_response.status_code == 200:
-                        filename = image_url.split("/")[-1].split("?")[0]
-                        return BytesIO(img_response.content), filename
-                    else:
-                        print(f"❌ Failed to fetch image from parsed meta: {img_response.status_code}")
-                        return None, None
-                else:
-                    print("❌ No image meta tag found on the Imgur page.")
-                    return None, None
-            else:
-                print(f"❌ Failed to load Imgur page. Status code: {response.status_code}")
-                return None, None
-
-        print("❌ Unsupported or invalid Imgur URL format.")
-        return None, None
-
-    except Exception as e:
-        print(f"❌ Exception in download_imgur_image: {e}")
-        return None, None
-
-
-
 
 # === Date Parsing Helper ===
 
@@ -153,33 +103,10 @@ if not event_links_today:
     print("❌ No events found for today.")
     exit(0)
 
-# === Step 2: Get All Public TruckersMP Event IDs ===
-
-# public_events_res = requests.get("https://api.truckersmp.com/v2/events")
-# if public_events_res.status_code != 200:
-#     print("❌ Failed to fetch public events.")
-#     exit(1)
-
-# try:
-#     public_json = public_events_res.json()
-#     response_data = public_json.get("response", {})
-#     public_event_ids = [
-#         str(event["id"])
-#         for category in response_data.values() if isinstance(category, list)
-#         for event in category
-#     ]
-# except Exception as e:
-#     print(f"❌ Failed to parse public event list: {e}")
-#     exit(1)
-
-# === Step 3: Process & Post Each Event to Discord ===
 
 for event_link, row in event_links_today:
     event_id = event_link.strip('/').split('/')[-1].split('-')[0]
 
-    # if event_id not in public_event_ids:
-    #          print(f"⚠️ Event {event_id} is not public. Skipping.")
-    #          continue
 
     response = requests.get(f"https://api.truckersmp.com/v2/events/{event_id}")
     if response.status_code != 200:
@@ -254,7 +181,8 @@ for event_link, row in event_links_today:
     else:
         print(f"❌ Failed to post event {event_id} to Discord: {resp.status_code}")
         print(resp.text)
-    
+
+    time.sleep(1)
     # === Send Route Map as plain message ===
     map_url = event_data.get("map")
     if map_url:
@@ -269,6 +197,7 @@ for event_link, row in event_links_today:
     else:
         print("❌ Could not fetch map image.")
 
+    time.sleep(1)
     
     if slot_link:
         slot_payload = {
@@ -281,26 +210,3 @@ for event_link, row in event_links_today:
             print(f"❌ Failed to send slot image: {resp.status_code}")
     else:
         print("❌ Could not fetch slot image.")
-    
-    # === Send Slot Image separately (once only) ===
-    # if slot_link:
-    #     print(f"📸 Slot image link: {slot_link}")
-    #     image_file, filename = download_imgur_image(slot_link)
-    #     if image_file:
-    #         image_file.seek(0)
-    #         files = {
-    #             'file': (filename, image_file, 'image/png')
-    #         }
-    #         data = {
-    #             "payload_json": json.dumps({
-    #                 "content": f"📸 **Slot Image for {event_data.get('name', 'Event')}**\n{slot_link}"
-    #             })
-    #         }
-    #         resp = requests.post(DISCORD_WEBHOOK, data=data, files=files)
-    
-    #         if resp.status_code in [200, 204]:
-    #             print("✅ Slot image sent with caption.")
-    #         else:
-    #             print(f"❌ Failed to send slot image: {resp.status_code}")
-    #     else:
-    #         print("❌ Could not fetch slot image.")
