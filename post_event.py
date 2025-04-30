@@ -239,30 +239,31 @@ for event_link, row in event_links_today:
 
 }
 
-    # === Send to Discord Webhook ===
+    # === Send event embed ===
     headers = {
         "Content-Type": "application/json"
     }
-
     payload = {
-        "content": f"||<@&{ROLE_ID}>||",  # Hidden role mention
+        "content": f"||<@&{ROLE_ID}>||",
         "embeds": [embed],
     }
-
     resp = requests.post(DISCORD_WEBHOOK, headers=headers, json=payload)
-
+    
     if resp.status_code in [200, 204]:
         print(f"✅ Event {event_id} successfully posted to Discord!")
     else:
         print(f"❌ Failed to post event {event_id} to Discord: {resp.status_code}")
         print(resp.text)
+    
+    # === Send Route Map as plain message ===
     map_url = event_data.get("map")
-
     if map_url:
-        img_payload = {
+        map_payload = {
             "content": f"🗺️ **Route Map for {event_data.get('name', 'Event')}**\n{map_url}"
         }
-    requests.post(DISCORD_WEBHOOK, headers=headers, json=img_payload)
+        requests.post(DISCORD_WEBHOOK, headers=headers, json=map_payload)
+    
+    # === Send Slot Image separately (once only) ===
     if slot_link:
         print(f"📸 Slot image link: {slot_link}")
         image_file, filename = download_imgur_image(slot_link)
@@ -271,12 +272,12 @@ for event_link, row in event_links_today:
             files = {
                 'file': (filename, image_file, 'image/png')
             }
-            payload = {
+            data = {
                 "payload_json": json.dumps({
-                    "content": f"🗺️ **Slot Image for {event_data.get('name', 'Event')}**\n{slot_link}"
+                    "content": f"📸 **Slot Image for {event_data.get('name', 'Event')}**\n{slot_link}"
                 })
             }
-            resp = requests.post(DISCORD_WEBHOOK, data=payload, files=files)
+            resp = requests.post(DISCORD_WEBHOOK, data=data, files=files)
     
             if resp.status_code in [200, 204]:
                 print("✅ Slot image sent with caption.")
