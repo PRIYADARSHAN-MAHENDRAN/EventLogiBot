@@ -264,23 +264,23 @@ for event_link, row in event_links_today:
         }
     requests.post(DISCORD_WEBHOOK, headers=headers, json=img_payload)
     if slot_link:
-    print(f"📸 Slot image link: {slot_link}")
-    image_file, filename = download_imgur_image(slot_link)
-    if image_file:
-        image_file.seek(0)
-        files = {
-            'file': (filename, image_file, 'image/png')
-        }
-        payload = {
-            "payload_json": json.dumps({
-                "content": f"🗺️ **Slot Image for {event_data.get('name', 'Event')}**\n{slot_link}"
-            })
-        }
-        resp = requests.post(DISCORD_WEBHOOK, data=payload, files=files)
-
-        if resp.status_code in [200, 204]:
-            print("✅ Slot image sent with caption.")
+        print(f"📸 Slot image link: {slot_link}")
+        image_file, filename = download_imgur_image(slot_link)
+        if image_file:
+            image_file.seek(0)
+            files = {
+                'file': (filename, image_file, 'image/png')
+            }
+            payload = {
+                "payload_json": json.dumps({
+                    "content": f"🗺️ **Slot Image for {event_data.get('name', 'Event')}**\n{slot_link}"
+                })
+            }
+            resp = requests.post(DISCORD_WEBHOOK, data=payload, files=files)
+    
+            if resp.status_code in [200, 204]:
+                print("✅ Slot image sent with caption.")
+            else:
+                print(f"❌ Failed to send slot image: {resp.status_code}")
         else:
-            print(f"❌ Failed to send slot image: {resp.status_code}")
-    else:
-        print("❌ Could not fetch slot image.")
+            print("❌ Could not fetch slot image.")
