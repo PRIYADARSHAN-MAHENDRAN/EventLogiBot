@@ -210,3 +210,5 @@ for event_link, row in event_links_today:
             print(f"❌ Failed to send slot image: {resp.status_code}")
     else:
         print("❌ Could not fetch slot image.")
+
+    time.sleep(1)
