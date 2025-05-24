@@ -99,6 +99,8 @@ for row in rows:
 
     time_diff_1h = abs((now_ist - reminder_1h).total_seconds())
     time_diff_30m = abs((now_ist - reminder_30m).total_seconds())
+    print(f"🕒 Now: {now_ist}, 1hr Reminder: {reminder_1h}, 30min Reminder: {reminder_30m}")
+
 
     if time_diff_1h <= 300:
         reminder_label = "⏰ Reminder: This event starts in **1 hour!**"
