@@ -84,15 +84,17 @@ for row in rows:
             continue
         data = res.json()['response']
         event_time = datetime.strptime(data['start_at'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=utc).astimezone(ist)
-        reminder_time = event_time - timedelta(hours=1)
+        # reminder_time = event_time - timedelta(hours=1)
+        reminder_1h = event_time - timedelta(hours=7)
+        reminder_30m = event_time - timedelta(minutes=30)
 
-        print(f"🕐 Event: {data['name']} | Event time: {event_time.strftime('%Y-%m-%d %H:%M:%S')} IST | Reminder time: {reminder_time.strftime('%Y-%m-%d %H:%M:%S')} IST | Current time: {now_ist.strftime('%Y-%m-%d %H:%M:%S')} IST")
+        print(f"🕐 Event: {data['name']} | Event time: {event_time.strftime('%Y-%m-%d %H:%M:%S')} IST | Reminder time for 1hr: {reminder_1h.strftime('%Y-%m-%d %H:%M:%S')} IST | Reminder time for 30min: {reminder_30m.strftime('%Y-%m-%d %H:%M:%S')} IST | Current time: {now_ist.strftime('%Y-%m-%d %H:%M:%S')} IST")
     except Exception as e:
         print(f"❌ Error fetching event timing from API: {e}")
         continue
 
 
-    reminder_1h = event_time - timedelta(hours=1)
+    reminder_1h = event_time - timedelta(hours=7)
     reminder_30m = event_time - timedelta(minutes=30)
 
     time_diff_1h = abs((now_ist - reminder_1h).total_seconds())
