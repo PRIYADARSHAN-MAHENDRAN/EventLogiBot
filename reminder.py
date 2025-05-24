@@ -14,7 +14,7 @@ print("⏰ Starting Event Reminder Script...")
 utc = pytz.utc
 ist = pytz.timezone("Asia/Kolkata")
 now_utc = datetime.utcnow().replace(tzinfo=utc)
-now_ist = ist.localize(datetime.strptime("2025-05-24 17:00:00", "%Y-%m-%d %H:%M:%S"))
+now_ist = ist.localize(datetime.strptime("2025-05-24 17:30:00", "%Y-%m-%d %H:%M:%S"))
 print(f"Current time (UTC): {now_utc}")
 print(f"Current time (IST): {now_ist}")
 
@@ -118,7 +118,6 @@ for row in rows:
 
 
     if time_diff_1h <= 300:
-        reminder_label = "⏰ Reminder: This event starts in **1 hour!**"
         print("✅ 1-Hour Reminder matched.")
         # Calculate remaining time in minutes
         try:
@@ -173,46 +172,55 @@ for row in rows:
     
 
     elif time_diff_30m <= 300:
-        reminder_label = "⏰ Reminder: This event starts in **30 minutes!**"
         print("✅ 30-Minute Reminder matched.")
-
         try:
-
-            description = (
-                f"**🛠 VTC** : {data.get('vtc', {}).get('name', 'Unknown VTC')}\n\n"
-                f"**📅 Date** : {format_date(data.get('start_at', ''))}\n\n"
-                f"**⏰ Meetup Time** : {data.get('meetup_at', '').split(' ')[1][:5]} UTC "
-                f"({utc_to_ist_ampm(data.get('meetup_at', ''))} IST)\n\n"
-                f"**🚀 Departure Time** : {data.get('start_at', '').split(' ')[1][:5]} UTC "
-                f"({utc_to_ist_ampm(data.get('start_at', ''))} IST)\n\n"
-                f"**🖥 Server** : {data.get('server', {}).get('name', 'Unknown Server')}\n\n"
-                f"**🚏 Departure** : {data.get('departure', {}).get('city', 'Unknown')} "
-                f"({data.get('departure', {}).get('location', 'Unknown')})\n\n"
-                f"**🎯 Arrival** : {data.get('arrive', {}).get('city', 'Unknown')} "
-                f"({data.get('arrive', {}).get('location', 'Unknown')})\n\n"
-            )
-
-            
-            embed = {
-                "embeds": [
-                    {
-                        "title": data.get("name", "TruckersMP Event"),
-                        "url": f"https://truckersmp.com/events/{data.get('id', '')}",
-                        "description": description,
-                        "color": 15844367  # Optional: orange
-                    }
-                ]
-            }
-
-
-
-            response = requests.post(os.environ['DISCORD_WEBHOOK_URL'], json=embed)
-            if response.status_code == 204:
-                print("✅ 30min Reminder sent successfully to Discord.")
-            else:
-                print(f"❌ 30min Reminder Failed to send to Discord: {response.status_code}, {response.text}")
+            time_remaining_minutes = int((event_time - now_ist).total_seconds() // 60)
+            time_label = f"⏰ {time_remaining_minutes} min!! | "
         except Exception as e:
-            print(f"❌ Failed to send reminder: {e}")
+            time_label = ""
+            print(f"⚠️ Failed to calculate time remaining: {e}")
+        
+        # Use that in the embed title
+        thumbnail_url = data.get("banner")
+        embed = {
+            "image": {"url": thumbnail_url},
+            "title": f"{time_label}{data.get('name', 'TruckersMP Event')}",
+            "url": event_link,
+            "color": 16776960,
+            "fields": [
+                {
+                    "name": "",
+                    "value": (
+                        f"**🛠 VTC** : {data.get('vtc', {}).get('name', 'Unknown VTC')}\n\n"
+                        f"**📅 Date** : {format_date(data.get('start_at', ''))}\n\n"
+                        f"**⏰ Meetup Time** : {data.get('meetup_at', '').split(' ')[1][:5]} UTC "
+                        f"({utc_to_ist_ampm(data.get('meetup_at', ''))} IST)\n\n"
+                        f"**🚀 Departure Time** : {data.get('start_at', '').split(' ')[1][:5]} UTC "
+                        f"({utc_to_ist_ampm(data.get('start_at', ''))} IST)\n\n"
+                        f"**🖥 Server** : {data.get('server', {}).get('name', 'Unknown Server')}\n\n"
+                        f"**🚏 Departure** : {data.get('departure', {}).get('city', 'Unknown')} "
+                        f"({data.get('departure', {}).get('location', 'Unknown')})\n\n"
+                        f"**🎯 Arrival** : {data.get('arrive', {}).get('city', 'Unknown')} "
+                        f"({data.get('arrive', {}).get('location', 'Unknown')})\n\n"
+                    ),
+                    "inline": False
+                }
+            ],
+            "footer": {"text": "by TNL | PRIYADARSHAN"},
+        }
+
+        payload = {
+            "embeds": [embed]
+        }
+
+        response = requests.post(
+            os.environ['DISCORD_WEBHOOK_URL'],
+            json={"embeds": [embed]}
+        )
+        if response.status_code == 204:
+            print("✅ 30min Reminder sent successfully to Discord.")
+        else:
+              print(f"❌ 30min Reminder Failed to send to Discord: {response.status_code}, {response.text}")
 
     else:
         print("⏩ Not the time yet for reminder.")
