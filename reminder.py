@@ -133,47 +133,39 @@ for row in rows:
                         "fields": [
                             {
                                 "name": "🕒 Time Left",
-                                "value": f"**{(event_time-now_ist) // 60} minutes** until the event starts!",
-                                "inline": False
+                                "value": f"**{int((event_time - now_ist).total_seconds() // 60)} minutes** until the event starts!\n\n"
                             },
                             {
                                 "name": "🛠 VTC",
-                                "value": data.get('vtc', {}).get('name', 'Unknown VTC'),
-                                "inline": True
+                                "value": f"{data.get('vtc', {}).get('name', 'Unknown VTC')}\n\n"
                             },
                             {
                                 "name": "📅 Date",
-                                "value": format_date(data.get('start_at', '')),
-                                "inline": True
+                                "value": f"{format_date(data.get('start_at', ''))}\n\n"
                             },
                             {
                                 "name": "⏰ Meetup Time",
                                 "value": f"{data.get('meetup_at', '').split(' ')[1][:5]} UTC "
-                                         f"({utc_to_ist_ampm(data.get('meetup_at', ''))} IST)",
-                                "inline": False
+                                         f"({utc_to_ist_ampm(data.get('meetup_at', ''))} IST)\n\n"
                             },
                             {
                                 "name": "🚀 Departure Time",
                                 "value": f"{data.get('start_at', '').split(' ')[1][:5]} UTC "
-                                         f"({utc_to_ist_ampm(data.get('start_at', ''))} IST)",
-                                "inline": False
+                                         f"({utc_to_ist_ampm(data.get('start_at', ''))} IST)\n\n"
                             },
                             {
                                 "name": "🖥 Server",
-                                "value": data.get('server', {}).get('name', 'Unknown Server'),
-                                "inline": True
+                                "value": f"{data.get('server', {}).get('name', 'Unknown Server')}\n\n"
                             },
                             {
                                 "name": "🚏 Departure",
                                 "value": f"{data.get('departure', {}).get('city', 'Unknown')} "
-                                         f"({data.get('departure', {}).get('location', 'Unknown')})",
-                                "inline": False
+                                         f"({data.get('departure', {}).get('location', 'Unknown')})\n\n"
                             },
                             {
                                 "name": "🎯 Arrival",
                                 "value": f"{data.get('arrive', {}).get('city', 'Unknown')} "
-                                         f"({data.get('arrive', {}).get('location', 'Unknown')})",
-                                "inline": False
+                                         f"({data.get('arrive', {}).get('location', 'Unknown')})\n\n"
                             }
                         ],
                         
