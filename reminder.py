@@ -153,9 +153,9 @@ for row in rows:
 
             response = requests.post(os.environ['DISCORD_WEBHOOK_URL'], json=embed)
             if response.status_code == 204:
-                print("✅ Reminder sent successfully to Discord.")
+                print("✅ 1hr Reminder sent successfully to Discord.")
             else:
-                print(f"❌ Failed to send to Discord: {response.status_code}, {response.text}")
+                print(f"❌ 1hr Reminder Failed to send to Discord: {response.status_code}, {response.text}")
         except Exception as e:
             print(f"❌ Failed to send reminder: {e}")
     
@@ -196,9 +196,9 @@ for row in rows:
 
             response = requests.post(os.environ['DISCORD_WEBHOOK_URL'], json=embed)
             if response.status_code == 204:
-                print("✅ Reminder sent successfully to Discord.")
+                print("✅ 30min Reminder sent successfully to Discord.")
             else:
-                print(f"❌ Failed to send to Discord: {response.status_code}, {response.text}")
+                print(f"❌ 30min Reminder Failed to send to Discord: {response.status_code}, {response.text}")
         except Exception as e:
             print(f"❌ Failed to send reminder: {e}")
 
