@@ -138,14 +138,17 @@ for row in rows:
             )
 
             
-            "embeds": [
-                {
-                    "title": event_data.get("name", "TruckersMP Event"),
-                    "url": f"https://truckersmp.com/events/{event_data.get('id', '')}",
-                    "description": description,
-                    "color": 15844367  # Optional: orange
-                }
-            ]
+            embed = {
+                "embeds": [
+                    {
+                        "title": event_data.get("name", "TruckersMP Event"),
+                        "url": f"https://truckersmp.com/events/{event_data.get('id', '')}",
+                        "description": description,
+                        "color": 15844367  # Optional: orange
+                    }
+                ]
+            }
+
 
 
             response = requests.post(os.environ['DISCORD_WEBHOOK_URL'], json=embed)
@@ -178,14 +181,17 @@ for row in rows:
             )
 
             
-            "embeds": [
-                {
-                    "title": event_data.get("name", "TruckersMP Event"),
-                    "url": f"https://truckersmp.com/events/{event_data.get('id', '')}",
-                    "description": description,
-                    "color": 15844367  # Optional: orange
-                }
-            ]
+            embed = {
+                "embeds": [
+                    {
+                        "title": event_data.get("name", "TruckersMP Event"),
+                        "url": f"https://truckersmp.com/events/{event_data.get('id', '')}",
+                        "description": description,
+                        "color": 15844367  # Optional: orange
+                    }
+                ]
+            }
+
 
 
             response = requests.post(os.environ['DISCORD_WEBHOOK_URL'], json=embed)
