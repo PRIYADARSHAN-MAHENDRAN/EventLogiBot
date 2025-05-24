@@ -162,7 +162,7 @@ for row in rows:
         }
 
         payload = {
-            "content": f"<@&{ROLE_ID}>",  # This mentions the role
+            "content": f"||<@&{ROLE_ID}>||",  # This mentions the role
             "embeds": [embed],            # Your embed dict goes here
         }
 
@@ -215,7 +215,7 @@ for row in rows:
         }
 
         payload = {
-            "content": f"<@&{ROLE_ID}>",  # This mentions the role
+            "content": f"||<@&{ROLE_ID}>||",  # This mentions the role
             "embeds": [embed],            # Your embed dict goes here
         }
 
