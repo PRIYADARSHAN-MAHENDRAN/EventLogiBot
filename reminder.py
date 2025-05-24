@@ -152,12 +152,7 @@ for row in rows:
                         f"({data.get('arrive', {}).get('location', 'Unknown')})\n\n"
                     ),
                     "inline": False
-                },
-                {
-                    "name": "🕒 Time Left",
-                    "value": f"**{time_remaining_minutes} minutes** until the event starts!",
-                    "inline": False
-                },
+                }
             ],
             "footer": {"text": "by TNL | PRIYADARSHAN"},
         }
