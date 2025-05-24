@@ -161,16 +161,14 @@ for row in rows:
             "footer": {"text": "by TNL | PRIYADARSHAN"},
         }
 
+        headers = {
+            "Content-Type": "application/json"
+        }
         payload = {
             "content": f"||<@&{ROLE_ID}>||",
-            "embeds": [embed]
+            "embeds": [embed],
         }
-
-
-        response = requests.post(
-            os.environ['DISCORD_WEBHOOK_URL'],
-            json={"embeds": [embed]}
-        )
+        resp = requests.post(DISCORD_WEBHOOK_URL, headers=headers, json=payload)
         if response.status_code == 204:
             print("✅ 1hr Reminder sent successfully to Discord.")
         else:
