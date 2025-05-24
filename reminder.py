@@ -128,7 +128,7 @@ for row in rows:
         # Calculate remaining time in minutes
         try:
             time_remaining_minutes = int((event_time - now_ist).total_seconds() // 60)
-            time_label = f"⏰ {time_remaining_minutes} min!! | "
+            time_label = f"⏰ {time_remaining_minutes} min to "
         except Exception as e:
             time_label = ""
             print(f"⚠️ Failed to calculate time remaining: {e}")
