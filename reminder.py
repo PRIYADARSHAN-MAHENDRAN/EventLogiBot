@@ -17,7 +17,7 @@ now_utc = datetime.utcnow().replace(tzinfo=utc)
 now_ist = datetime.now(ist)
 print(f"Current time (UTC): {now_utc}")
 print(f"Current time (IST): {now_ist}")
-
+ROLE_ID = (os.environ['ROLE_ID'])
 # Authenticate
 try:
     creds_dict = json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT_KEY"])
@@ -162,6 +162,7 @@ for row in rows:
         }
 
         payload = {
+            "content": f"||<@&{ROLE_ID}>||",
             "embeds": [embed]
         }
 
@@ -215,6 +216,7 @@ for row in rows:
         }
 
         payload = {
+            "content": f"||<@&{ROLE_ID}>||",
             "embeds": [embed]
         }
 
