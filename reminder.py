@@ -2,10 +2,8 @@ import os
 import json
 import gspread
 import requests
-import time
 import pytz
 from datetime import datetime, timedelta
-from pytz import timezone
 from dateutil import parser
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -17,7 +15,6 @@ utc = pytz.utc
 ist = pytz.timezone("Asia/Kolkata")
 now_utc = datetime.utcnow().replace(tzinfo=utc)
 now_ist = ist.localize(datetime.strptime("2025-05-24 17:00:00", "%Y-%m-%d %H:%M:%S"))
-timestamp_ist=datetime.now(ist).isoformat()
 print(f"Current time (UTC): {now_utc}")
 print(f"Current time (IST): {now_ist}")
 
@@ -195,7 +192,7 @@ for row in rows:
             else:
                 print(f"❌ 1hr Reminder Failed to send to Discord: {response.status_code}, {response.text}")
         except Exception as e:
-            print(f"❌ Failed to send reminder: {e}")
+            print(f"❌ 1hr Reminder Failed to send reminder: {e}")
     
 
     elif time_diff_30m <= 300:
