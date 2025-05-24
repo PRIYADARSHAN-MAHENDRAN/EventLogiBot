@@ -181,8 +181,7 @@ for row in rows:
                         ],
                         
                         "footer": {
-                            "footer": {"text": "by TNL | PRIYADARSHAN"},
-                            "timestamp": timestamp_ist
+                            "footer": {"text": "by TNL | PRIYADARSHAN"}
                         }
                     }
                 ]
