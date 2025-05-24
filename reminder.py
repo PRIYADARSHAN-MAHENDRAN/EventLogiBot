@@ -14,7 +14,7 @@ utc = pytz.utc
 ist = pytz.timezone("Asia/Kolkata")
 now_utc = datetime.utcnow().replace(tzinfo=utc)
 now_ist = ist.localize(datetime.strptime("2025-05-24 17:00:00", "%Y-%m-%d %H:%M:%S"))
-
+datetime.now(tz_ist).isoformat()
 print(f"Current time (UTC): {now_utc}")
 print(f"Current time (IST): {now_ist}")
 
@@ -123,28 +123,64 @@ for row in rows:
 
         try:
 
-            description = (
-                f"**🛠 VTC** : {data.get('vtc', {}).get('name', 'Unknown VTC')}\n\n"
-                f"**📅 Date** : {format_date(data.get('start_at', ''))}\n\n"
-                f"**⏰ Meetup Time** : {data.get('meetup_at', '').split(' ')[1][:5]} UTC "
-                f"({utc_to_ist_ampm(data.get('meetup_at', ''))} IST)\n\n"
-                f"**🚀 Departure Time** : {data.get('start_at', '').split(' ')[1][:5]} UTC "
-                f"({utc_to_ist_ampm(data.get('start_at', ''))} IST)\n\n"
-                f"**🖥 Server** : {data.get('server', {}).get('name', 'Unknown Server')}\n\n"
-                f"**🚏 Departure** : {data.get('departure', {}).get('city', 'Unknown')} "
-                f"({data.get('departure', {}).get('location', 'Unknown')})\n\n"
-                f"**🎯 Arrival** : {data.get('arrive', {}).get('city', 'Unknown')} "
-                f"({data.get('arrive', {}).get('location', 'Unknown')})\n\n"
-            )
-
-            
             embed = {
                 "embeds": [
                     {
-                        "title": data.get("name", "TruckersMP Event"),
+                        "title": f"⏰ 1-Hour Reminder: {data.get('name', 'TruckersMP Event')}",
                         "url": f"https://truckersmp.com/events/{data.get('id', '')}",
-                        "description": description,
-                        "color": 15844367  # Optional: orange
+                        "description": "Get ready! The event starts soon. Here's what you need to know:",
+                        "color": 15844367,  # Orange
+                        "fields": [
+                            {
+                                "name": "🕒 Time Left",
+                                "value": f"**{reminder_1h // 60} minutes** until the event starts!",
+                                "inline": False
+                            },
+                            {
+                                "name": "🛠 VTC",
+                                "value": data.get('vtc', {}).get('name', 'Unknown VTC'),
+                                "inline": True
+                            },
+                            {
+                                "name": "📅 Date",
+                                "value": format_date(data.get('start_at', '')),
+                                "inline": True
+                            },
+                            {
+                                "name": "⏰ Meetup Time",
+                                "value": f"{data.get('meetup_at', '').split(' ')[1][:5]} UTC "
+                                         f"({utc_to_ist_ampm(data.get('meetup_at', ''))} IST)",
+                                "inline": False
+                            },
+                            {
+                                "name": "🚀 Departure Time",
+                                "value": f"{data.get('start_at', '').split(' ')[1][:5]} UTC "
+                                         f"({utc_to_ist_ampm(data.get('start_at', ''))} IST)",
+                                "inline": False
+                            },
+                            {
+                                "name": "🖥 Server",
+                                "value": data.get('server', {}).get('name', 'Unknown Server'),
+                                "inline": True
+                            },
+                            {
+                                "name": "🚏 Departure",
+                                "value": f"{data.get('departure', {}).get('city', 'Unknown')} "
+                                         f"({data.get('departure', {}).get('location', 'Unknown')})",
+                                "inline": False
+                            },
+                            {
+                                "name": "🎯 Arrival",
+                                "value": f"{data.get('arrive', {}).get('city', 'Unknown')} "
+                                         f"({data.get('arrive', {}).get('location', 'Unknown')})",
+                                "inline": False
+                            }
+                        ],
+                        
+                        "footer": {
+                            "footer": {"text": "by TNL | PRIYADARSHAN"},
+                            "timestamp": timestamp_ist
+                        }
                     }
                 ]
             }
