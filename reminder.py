@@ -116,8 +116,14 @@ for row in rows:
     time_diff_30m = abs((now_ist - reminder_30m).total_seconds())
     print(f"🕒 Now: {now_ist}, 1hr Reminder: {time_diff_1h}, 30min Reminder: {time_diff_30m}")
 
-
-    if time_diff_1h <= 300:
+    window_1h_start = reminder_1h
+    window_1h_end = reminder_1h + timedelta(minutes=29, seconds=59)
+    
+    window_30m_start = reminder_30m
+    window_30m_end = reminder_30m + timedelta(minutes=29, seconds=59)
+    
+    # Check 1-Hour Window
+    if window_1h_start <= now_ist <= window_1h_end:
         print("✅ 1-Hour Reminder matched.")
         # Calculate remaining time in minutes
         try:
@@ -171,7 +177,7 @@ for row in rows:
               print(f"❌ 1hr Reminder Failed to send to Discord: {response.status_code}, {response.text}")
     
 
-    elif time_diff_30m <= 300:
+    elif window_30m_start <= now_ist <= window_30m_end:
         print("✅ 30-Minute Reminder matched.")
         try:
             time_remaining_minutes = int((event_time - now_ist).total_seconds() // 60)
