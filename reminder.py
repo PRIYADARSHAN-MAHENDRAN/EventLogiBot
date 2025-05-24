@@ -92,22 +92,18 @@ for row in rows:
         continue
 
 
-    time_diff = (now_ist - reminder_time).total_seconds()
+    reminder_1h = event_time - timedelta(hours=1)
+    reminder_30m = event_time - timedelta(minutes=30)
 
-    if 0 <= time_diff <= 300:
-        print("✅ Reminder time matched. Preparing to send Discord reminder...")
-        # (send Discord code block stays the same here)
+    time_diff_1h = abs((now_ist - reminder_1h).total_seconds())
+    time_diff_30m = abs((now_ist - reminder_30m).total_seconds())
+
+    if time_diff_1h <= 300:
+        reminder_label = "⏰ Reminder: This event starts in **1 hour!**"
+        print("✅ 1-Hour Reminder matched.")
 
         try:
-            event_id = event_link.split("/")[-1].split("-")[0]
-            api_url = f"https://api.truckersmp.com/v2/events/{event_id}"
-            res = requests.get(api_url)
-            if res.status_code != 200:
-                print(f"❌ Failed to fetch event API: {res.status_code}")
-                continue
-            data = res.json()['response']
-            print(f"📡 Fetched event: {data['name']}")
-
+            
             embed = {
                 "content": "\u23f0 Reminder: This event starts in **1 hour!**",
                 "embeds": [
@@ -141,5 +137,48 @@ for row in rows:
                 print(f"❌ Failed to send to Discord: {response.status_code}, {response.text}")
         except Exception as e:
             print(f"❌ Failed to send reminder: {e}")
+    
+
+    elif time_diff_30m <= 300:
+        reminder_label = "⏰ Reminder: This event starts in **30 minutes!**"
+        print("✅ 30-Minute Reminder matched.")
+
+        try:
+            
+            embed = {
+                "content": "\u23f0 Reminder: This event starts in **30 minutes!**",
+                "embeds": [
+                    {
+                        "title": data['name'],
+                        "url": event_link,
+                        "description": data['description'].replace('\n', ' ')[:400],
+                        "fields": [
+                            {
+                                "name": "\u23f0 Meetup",
+                                "value": f"{data['meetup_at'][11:16]} UTC ({datetime.strptime(data['meetup_at'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=utc).astimezone(ist).strftime('%I:%M %p')} IST)"
+                            },
+                            {
+                                "name": "\ud83d\ude80 Start",
+                                "value": f"{data['start_at'][11:16]} UTC ({datetime.strptime(data['start_at'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=utc).astimezone(ist).strftime('%I:%M %p')} IST)"
+                            },
+                            {"name": "Game", "value": data['game'], "inline": True},
+                            {"name": "Server", "value": data['server']['name'], "inline": True},
+                            {"name": "From", "value": data['departure'], "inline": True},
+                            {"name": "To", "value": data['arrival'], "inline": True},
+                        ],
+                        "image": {"url": data['banner']} if data.get('banner') else None
+                    }
+                ]
+            }
+
+            response = requests.post(os.environ['DISCORD_WEBHOOK_URL'], json=embed)
+            if response.status_code == 204:
+                print("✅ Reminder sent successfully to Discord.")
+            else:
+                print(f"❌ Failed to send to Discord: {response.status_code}, {response.text}")
+        except Exception as e:
+            print(f"❌ Failed to send reminder: {e}")
+
     else:
         print("⏩ Not the time yet for reminder.")
+        continue
