@@ -14,7 +14,7 @@ print("⏰ Starting Event Reminder Script...")
 utc = pytz.utc
 ist = pytz.timezone("Asia/Kolkata")
 now_utc = datetime.utcnow().replace(tzinfo=utc)
-now_ist = ist.localize(datetime.strptime("2025-05-24 17:45:00", "%Y-%m-%d %H:%M:%S"))
+now_ist = datetime.now(ist)
 print(f"Current time (UTC): {now_utc}")
 print(f"Current time (IST): {now_ist}")
 
