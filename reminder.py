@@ -30,6 +30,8 @@ scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/au
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 
+
+
 try:
     sheet = client.open_by_key(os.environ['GOOGLE_SHEET_ID'])
     print(f"✅ Connected to Google Sheet ID: {os.environ['GOOGLE_SHEET_ID']}")
@@ -58,6 +60,18 @@ print(f"📄 Found {len(rows)} rows")
 # Loop through events
 today_str = now_ist.strftime('%Y-%m-%d')
 print(f"📅 Filtering events for today: {today_str}")
+
+def format_date(utc_date_str):
+    dt = datetime.strptime(utc_date_str, "%Y-%m-%d %H:%M:%S")
+    return dt.strftime("%A, %d %B %Y")  # E.g., Saturday, 24 May 2025
+
+def utc_to_ist_ampm(utc_datetime_str):
+    utc = pytz.utc
+    ist = pytz.timezone("Asia/Kolkata")
+    utc_time = utc.localize(datetime.strptime(utc_datetime_str, "%Y-%m-%d %H:%M:%S"))
+    ist_time = utc_time.astimezone(ist)
+    return ist_time.strftime("%I:%M %p")  # E.g., 06:30 PM
+
 
 for row in rows:
     event_link = row.get('TRUCKERSMP \nEVENT LINK ') 
@@ -108,32 +122,31 @@ for row in rows:
         print("✅ 1-Hour Reminder matched.")
 
         try:
+
+            description = (
+                f"**🛠 VTC** : {event_data.get('vtc', {}).get('name', 'Unknown VTC')}\n\n"
+                f"**📅 Date** : {format_date(event_data.get('start_at', ''))}\n\n"
+                f"**⏰ Meetup Time** : {event_data.get('meetup_at', '').split(' ')[1][:5]} UTC "
+                f"({utc_to_ist_ampm(event_data.get('meetup_at', ''))} IST)\n\n"
+                f"**🚀 Departure Time** : {event_data.get('start_at', '').split(' ')[1][:5]} UTC "
+                f"({utc_to_ist_ampm(event_data.get('start_at', ''))} IST)\n\n"
+                f"**🖥 Server** : {event_data.get('server', {}).get('name', 'Unknown Server')}\n\n"
+                f"**🚏 Departure** : {event_data.get('departure', {}).get('city', 'Unknown')} "
+                f"({event_data.get('departure', {}).get('location', 'Unknown')})\n\n"
+                f"**🎯 Arrival** : {event_data.get('arrive', {}).get('city', 'Unknown')} "
+                f"({event_data.get('arrive', {}).get('location', 'Unknown')})\n\n"
+            )
+
             
-            embed = {
-                "content": "\u23f0 Reminder: This event starts in **1 hour!**",
-                "embeds": [
-                    {
-                        "title": data['name'],
-                        "url": event_link,
-                        "description": data['description'].replace('\n', ' ')[:400],
-                        "fields": [
-                            {
-                                "name": "\u23f0 Meetup",
-                                "value": f"{data['meetup_at'][11:16]} UTC ({datetime.strptime(data['meetup_at'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=utc).astimezone(ist).strftime('%I:%M %p')} IST)"
-                            },
-                            {
-                                "name": "\ud83d\ude80 Start",
-                                "value": f"{data['start_at'][11:16]} UTC ({datetime.strptime(data['start_at'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=utc).astimezone(ist).strftime('%I:%M %p')} IST)"
-                            },
-                            {"name": "Game", "value": data['game'], "inline": True},
-                            {"name": "Server", "value": data['server']['name'], "inline": True},
-                            {"name": "From", "value": data['departure'], "inline": True},
-                            {"name": "To", "value": data['arrival'], "inline": True},
-                        ],
-                        "image": {"url": data['banner']} if data.get('banner') else None
-                    }
-                ]
-            }
+            "embeds": [
+                {
+                    "title": event_data.get("name", "TruckersMP Event"),
+                    "url": f"https://truckersmp.com/events/{event_data.get('id', '')}",
+                    "description": description,
+                    "color": 15844367  # Optional: orange
+                }
+            ]
+
 
             response = requests.post(os.environ['DISCORD_WEBHOOK_URL'], json=embed)
             if response.status_code == 204:
@@ -149,32 +162,31 @@ for row in rows:
         print("✅ 30-Minute Reminder matched.")
 
         try:
+
+            description = (
+                f"**🛠 VTC** : {event_data.get('vtc', {}).get('name', 'Unknown VTC')}\n\n"
+                f"**📅 Date** : {format_date(event_data.get('start_at', ''))}\n\n"
+                f"**⏰ Meetup Time** : {event_data.get('meetup_at', '').split(' ')[1][:5]} UTC "
+                f"({utc_to_ist_ampm(event_data.get('meetup_at', ''))} IST)\n\n"
+                f"**🚀 Departure Time** : {event_data.get('start_at', '').split(' ')[1][:5]} UTC "
+                f"({utc_to_ist_ampm(event_data.get('start_at', ''))} IST)\n\n"
+                f"**🖥 Server** : {event_data.get('server', {}).get('name', 'Unknown Server')}\n\n"
+                f"**🚏 Departure** : {event_data.get('departure', {}).get('city', 'Unknown')} "
+                f"({event_data.get('departure', {}).get('location', 'Unknown')})\n\n"
+                f"**🎯 Arrival** : {event_data.get('arrive', {}).get('city', 'Unknown')} "
+                f"({event_data.get('arrive', {}).get('location', 'Unknown')})\n\n"
+            )
+
             
-            embed = {
-                "content": "\u23f0 Reminder: This event starts in **30 minutes!**",
-                "embeds": [
-                    {
-                        "title": data['name'],
-                        "url": event_link,
-                        "description": data['description'].replace('\n', ' ')[:400],
-                        "fields": [
-                            {
-                                "name": "\u23f0 Meetup",
-                                "value": f"{data['meetup_at'][11:16]} UTC ({datetime.strptime(data['meetup_at'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=utc).astimezone(ist).strftime('%I:%M %p')} IST)"
-                            },
-                            {
-                                "name": "\ud83d\ude80 Start",
-                                "value": f"{data['start_at'][11:16]} UTC ({datetime.strptime(data['start_at'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=utc).astimezone(ist).strftime('%I:%M %p')} IST)"
-                            },
-                            {"name": "Game", "value": data['game'], "inline": True},
-                            {"name": "Server", "value": data['server']['name'], "inline": True},
-                            {"name": "From", "value": data['departure'], "inline": True},
-                            {"name": "To", "value": data['arrival'], "inline": True},
-                        ],
-                        "image": {"url": data['banner']} if data.get('banner') else None
-                    }
-                ]
-            }
+            "embeds": [
+                {
+                    "title": event_data.get("name", "TruckersMP Event"),
+                    "url": f"https://truckersmp.com/events/{event_data.get('id', '')}",
+                    "description": description,
+                    "color": 15844367  # Optional: orange
+                }
+            ]
+
 
             response = requests.post(os.environ['DISCORD_WEBHOOK_URL'], json=embed)
             if response.status_code == 204:
