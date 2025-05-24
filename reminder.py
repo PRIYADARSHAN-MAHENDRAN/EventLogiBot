@@ -13,7 +13,8 @@ print("⏰ Starting Event Reminder Script...")
 utc = pytz.utc
 ist = pytz.timezone("Asia/Kolkata")
 now_utc = datetime.utcnow().replace(tzinfo=utc)
-now_ist = now_utc.astimezone(ist)
+now_ist = ist.localize(datetime.strptime("2025-05-24 17:00:00", "%Y-%m-%d %H:%M:%S"))
+
 print(f"Current time (UTC): {now_utc}")
 print(f"Current time (IST): {now_ist}")
 
@@ -85,7 +86,7 @@ for row in rows:
         data = res.json()['response']
         event_time = datetime.strptime(data['start_at'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=utc).astimezone(ist)
         # reminder_time = event_time - timedelta(hours=1)
-        reminder_1h = event_time - timedelta(hours=8)
+        reminder_1h = event_time - timedelta(hours=1)
         reminder_30m = event_time - timedelta(minutes=30)
 
         print(f"🕐 Event: {data['name']} | Event time: {event_time.strftime('%Y-%m-%d %H:%M:%S')} IST | Reminder time for 1hr: {reminder_1h.strftime('%Y-%m-%d %H:%M:%S')} IST | Reminder time for 30min: {reminder_30m.strftime('%Y-%m-%d %H:%M:%S')} IST | Current time: {now_ist.strftime('%Y-%m-%d %H:%M:%S')} IST")
@@ -94,7 +95,7 @@ for row in rows:
         continue
 
 
-    reminder_1h = event_time - timedelta(hours=8)
+    reminder_1h = event_time - timedelta(hours=1)
     reminder_30m = event_time - timedelta(minutes=30)
 
     time_diff_1h = abs((now_ist - reminder_1h).total_seconds())
