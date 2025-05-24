@@ -120,61 +120,48 @@ for row in rows:
     if time_diff_1h <= 300:
         reminder_label = "⏰ Reminder: This event starts in **1 hour!**"
         print("✅ 1-Hour Reminder matched.")
-
+        # Calculate remaining time in minutes
         try:
+            time_remaining_minutes = int((event_time - now_ist).total_seconds() // 60)
+            time_label = f"⏰ {time_remaining_minutes} min!! | "
+        except Exception as e:
+            time_label = ""
+            print(f"⚠️ Failed to calculate time remaining: {e}")
+        
+        # Use that in the embed title
+        thumbnail_url = data.get("banner")
+        embed = {
+            "image": {"url": thumbnail_url},
+            "title": f"{time_label}{data.get('name', 'TruckersMP Event')}",
+            "url": event_link,
+            "color": 16776960,
+            "fields": [
+                {
+                    "name": "",
+                    "value": (
+                        f"**🛠 VTC** : {data.get('vtc', {}).get('name', 'Unknown VTC')}\n\n"
+                        f"**📅 Date** : {format_date(data.get('start_at', ''))}\n\n"
+                        f"**⏰ Meetup Time** : {data.get('meetup_at', '').split(' ')[1][:5]} UTC "
+                        f"({utc_to_ist_ampm(data.get('meetup_at', ''))} IST)\n\n"
+                        f"**🚀 Departure Time** : {data.get('start_at', '').split(' ')[1][:5]} UTC "
+                        f"({utc_to_ist_ampm(data.get('start_at', ''))} IST)\n\n"
+                        f"**🖥 Server** : {data.get('server', {}).get('name', 'Unknown Server')}\n\n"
+                        f"**🚏 Departure** : {data.get('departure', {}).get('city', 'Unknown')} "
+                        f"({data.get('departure', {}).get('location', 'Unknown')})\n\n"
+                        f"**🎯 Arrival** : {data.get('arrive', {}).get('city', 'Unknown')} "
+                        f"({data.get('arrive', {}).get('location', 'Unknown')})\n\n"
+                    ),
+                    "inline": False
+                },
+                {
+                    "name": "🕒 Time Left",
+                    "value": f"**{time_remaining_minutes} minutes** until the event starts!",
+                    "inline": False
+                },
+            ],
+            "footer": {"text": "by TNL | PRIYADARSHAN"},
+        }
 
-            embed = {
-                "embeds": [
-                    {
-                        "title": f"⏰ 1-Hour Reminder: {data.get('name', 'TruckersMP Event')}",
-                        "url": f"https://truckersmp.com/events/{data.get('id', '')}",
-                        "description": "Get ready! The event starts soon. Here's what you need to know:",
-                        "color": 15844367,  # Orange
-                        "fields": [
-                            {
-                                "name": "🕒 Time Left",
-                                "value": f"**{int((event_time - now_ist).total_seconds() // 60)} minutes** until the event starts!\n\n"
-                            },
-                            {
-                                "name": "🛠 VTC",
-                                "value": f"{data.get('vtc', {}).get('name', 'Unknown VTC')}\n\n"
-                            },
-                            {
-                                "name": "📅 Date",
-                                "value": f"{format_date(data.get('start_at', ''))}\n\n"
-                            },
-                            {
-                                "name": "⏰ Meetup Time",
-                                "value": f"{data.get('meetup_at', '').split(' ')[1][:5]} UTC "
-                                         f"({utc_to_ist_ampm(data.get('meetup_at', ''))} IST)\n\n"
-                            },
-                            {
-                                "name": "🚀 Departure Time",
-                                "value": f"{data.get('start_at', '').split(' ')[1][:5]} UTC "
-                                         f"({utc_to_ist_ampm(data.get('start_at', ''))} IST)\n\n"
-                            },
-                            {
-                                "name": "🖥 Server",
-                                "value": f"{data.get('server', {}).get('name', 'Unknown Server')}\n\n"
-                            },
-                            {
-                                "name": "🚏 Departure",
-                                "value": f"{data.get('departure', {}).get('city', 'Unknown')} "
-                                         f"({data.get('departure', {}).get('location', 'Unknown')})\n\n"
-                            },
-                            {
-                                "name": "🎯 Arrival",
-                                "value": f"{data.get('arrive', {}).get('city', 'Unknown')} "
-                                         f"({data.get('arrive', {}).get('location', 'Unknown')})\n\n"
-                            }
-                        ],
-                        
-                        "footer": {
-                            "footer": {"text": "by TNL | PRIYADARSHAN"}
-                        }
-                    }
-                ]
-            }
 
 
 
