@@ -161,14 +161,15 @@ for row in rows:
             "footer": {"text": "by TNL | PRIYADARSHAN"},
         }
 
-        headers = {
-            "Content-Type": "application/json"
-        }
         payload = {
-            "content": f"||<@&{ROLE_ID}>||",
-            "embeds": [embed],
+            "content": f"<@&{ROLE_ID}>",  # This mentions the role
+            "embeds": [embed],            # Your embed dict goes here
         }
-        resp = requests.post(DISCORD_WEBHOOK_URL, headers=headers, json=payload)
+
+        response = requests.post(
+            os.environ['DISCORD_WEBHOOK_URL'],
+            json=payload
+        )
         if response.status_code == 204:
             print("✅ 1hr Reminder sent successfully to Discord.")
         else:
@@ -214,14 +215,15 @@ for row in rows:
         }
 
         payload = {
-            "content": f"||<@&{ROLE_ID}>||",
-            "embeds": [embed]
+            "content": f"<@&{ROLE_ID}>",  # This mentions the role
+            "embeds": [embed],            # Your embed dict goes here
         }
 
         response = requests.post(
             os.environ['DISCORD_WEBHOOK_URL'],
-            json={"embeds": [embed]}
+            json=payload
         )
+
         if response.status_code == 204:
             print("✅ 30min Reminder sent successfully to Discord.")
         else:
