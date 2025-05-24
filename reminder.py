@@ -133,7 +133,7 @@ for row in rows:
                         "fields": [
                             {
                                 "name": "🕒 Time Left",
-                                "value": f"**{reminder_1h // 60} minutes** until the event starts!",
+                                "value": f"**{(event_time-now_ist) // 60} minutes** until the event starts!",
                                 "inline": False
                             },
                             {
