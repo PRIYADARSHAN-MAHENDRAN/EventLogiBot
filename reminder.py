@@ -114,7 +114,6 @@ for row in rows:
 
     time_diff_1h = abs((now_ist - reminder_1h).total_seconds())
     time_diff_30m = abs((now_ist - reminder_30m).total_seconds())
-    print(f"🕒 Now: {now_ist}, 1hr Reminder: {time_diff_1h}, 30min Reminder: {time_diff_30m}")
 
     window_1h_start = reminder_1h
     window_1h_end = reminder_1h + timedelta(minutes=29, seconds=59)
