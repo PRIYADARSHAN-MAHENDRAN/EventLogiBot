@@ -32,17 +32,17 @@ jobs:
           if [[ "${{ github.event_name }}" == "schedule" ]]; then
             echo "DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_REMINDER1 }}" >> $GITHUB_ENV
             echo "GOOGLE_SHEET_ID=${{ secrets.SHEET_ID1 }}" >> $GITHUB_ENV
-            echo "SHEET_ID=${{ secrets.SHEET_ID1 }}" >> $GITHUB_ENV
+            echo "ROLE_ID=${{ secrets.ROLE_ID1 }}" >> $GITHUB_ENV
           else
             ENV_INPUT="${{ github.event.inputs.environment }}"
             if [[ "$ENV_INPUT" == "pro" ]]; then
               echo "DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_REMINDER1 }}" >> $GITHUB_ENV
               echo "GOOGLE_SHEET_ID=${{ secrets.SHEET_ID1 }}" >> $GITHUB_ENV
-              echo "SHEET_ID=${{ secrets.SHEET_ID1 }}" >> $GITHUB_ENV
+              echo "ROLE_ID=${{ secrets.ROLE_ID1 }}" >> $GITHUB_ENV
             else
               echo "DISCORD_WEBHOOK_URL=${{ secrets.DISCORD_WEBHOOK_REMINDER2 }}" >> $GITHUB_ENV
               echo "GOOGLE_SHEET_ID=${{ secrets.SHEET_ID2 }}" >> $GITHUB_ENV
-              echo "SHEET_ID=${{ secrets.SHEET_ID2 }}" >> $GITHUB_ENV
+              echo "ROLE_ID=${{ secrets.ROLE_ID2 }}" >> $GITHUB_ENV
             fi
           fi
 
