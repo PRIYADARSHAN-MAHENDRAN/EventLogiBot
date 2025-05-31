@@ -9,7 +9,7 @@ from pytz import timezone
 from google.oauth2.service_account import Credentials
 from io import BytesIO
 from bs4 import BeautifulSoup
-
+from calendar import month_name as calendar_month_name
 
 
 
@@ -25,7 +25,7 @@ tz_ist = timezone('Asia/Kolkata')
 today = datetime.now(tz_ist).date()
 timestamp_ist = datetime.now(tz_ist).isoformat()
 print(f"today: {today}")
-month_name = today.strftime("%B %Y")  # E.g., "April 2025"
+month_name = today.strftime("%b").upper() + "-" + str(today.year)  # E.g., "April 2025"
 
 # === Authenticate with Google Sheets ===
 
@@ -81,23 +81,25 @@ def format_date(utc_str):
 # === Step 1: Get Today’s Event Links from Google Sheet ===
 
 spreadsheet = client.open_by_key(SHEET_ID)
-worksheets = spreadsheet.worksheets()
+# Try to open only the current month sheet
+try:
+    sheet = spreadsheet.worksheet(month_name)
+except gspread.exceptions.WorksheetNotFound:
+    print(f"❌ Sheet '{month_name}' not found.")
+    exit(0)
 
 event_links_today = []
+data = sheet.get_all_values()
 
-for sheet in worksheets:
-    print(f"🔍 Checking sheet: {sheet.title}")
-    data = sheet.get_all_values()
+for row in data:
+    if len(row) >= 12 and row[11].strip().startswith("https://truckersmp.com/events"):
+        raw_date = row[1].strip()
+        event_date = parse_flexible_date(raw_date)
 
-    for row in data:
-        if len(row) >= 12 and row[11].strip().startswith("https://truckersmp.com/events"):
-            raw_date = row[1].strip()
-            event_date = parse_flexible_date(raw_date)
-
-            if event_date == today:
-                event_url = row[11].strip()
-                print(f"✅ Found event for today in '{sheet.title}': {event_url}")
-                event_links_today.append((event_url, row))
+        if event_date == today:
+            event_url = row[11].strip()
+            print(f"✅ Found event for today in '{month_name}': {event_url}")
+            event_links_today.append((event_url, row))
 
 if not event_links_today:
     print("❌ No events found for today.")
