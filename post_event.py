@@ -84,8 +84,9 @@ spreadsheet = client.open_by_key(SHEET_ID)
 # Try to open only the current month sheet
 try:
     sheet = spreadsheet.worksheet(month_name)
+    print(f"✅ Sheet '{month_name}' has found.")
 except gspread.exceptions.WorksheetNotFound:
-    print(f"❌ Sheet '{month_name}' not found.")
+    print(f"❌ Sheet '{month_name}' has not found.")
     exit(0)
 
 event_links_today = []
