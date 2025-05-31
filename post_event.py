@@ -24,7 +24,7 @@ SHEET_ID = (os.environ['SHEET_ID'])
 tz_ist = timezone('Asia/Kolkata')
 today = datetime.now(tz_ist).date()
 timestamp_ist = datetime.now(tz_ist).isoformat()
-print(f"today: {today}"+f"IST time: {timestamp}")
+print(f"today: {today}"+f"IST time: {timestamp_ist}")
 month_name = today.strftime("%b").upper() + "-" + str(today.year)  # E.g., "April 2025"
 
 # === Authenticate with Google Sheets ===
