@@ -14,7 +14,7 @@ print("⏰ Starting Event Reminder Script...")
 utc = pytz.utc
 ist = pytz.timezone("Asia/Kolkata")
 now_utc = datetime.utcnow().replace(tzinfo=utc)
-now_ist = ist.localize(datetime(2025, 6, 1, 17, 30, 0))
+now_ist = datetime.strptime("2025-06-01 17:30:00", "%Y-%m-%d %H:%M:%S").replace(tzinfo=ist)
 print(f"Current time (UTC): {now_utc}")
 print(f"Current time (IST): {now_ist}")
 ROLE_ID = (os.environ['ROLE_ID'])
