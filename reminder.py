@@ -7,17 +7,16 @@ from datetime import datetime, timedelta
 from dateutil import parser
 from oauth2client.service_account import ServiceAccountCredentials
 
-
 print("⏰ Starting Event Reminder Script...")
 
 # Setup timezone
 utc = pytz.utc
 ist = pytz.timezone("Asia/Kolkata")
-now_utc = datetime.utcnow().replace(tzinfo=utc)
-now_ist = datetime.strptime("2025-06-01 17:30:00", "%Y-%m-%d %H:%M:%S").replace(tzinfo=ist)
-print(f"Current time (UTC): {now_utc}")
+now_ist = datetime.now(ist)
 print(f"Current time (IST): {now_ist}")
-ROLE_ID = (os.environ['ROLE_ID'])
+
+ROLE_ID = os.environ['ROLE_ID']
+
 # Authenticate
 try:
     creds_dict = json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT_KEY"])
@@ -30,8 +29,6 @@ scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/au
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 
-
-
 try:
     sheet = client.open_by_key(os.environ['GOOGLE_SHEET_ID'])
     print(f"✅ Connected to Google Sheet ID: {os.environ['GOOGLE_SHEET_ID']}")
@@ -39,240 +36,100 @@ except Exception as e:
     print(f"❌ Failed to open Google Sheet: {e}")
     exit(1)
 
-# Get today's month and year
-today = datetime.utcnow()
-month_name = today.strftime("%b").upper()  # "APR", "MAY", etc.
-year = today.strftime("%Y")
-
-sheet_name = f"{month_name}-{year}"  # Result: "APR-2025"
-print(f"🔍 Looking for sheet: {sheet_name}")
+month_year = now_ist.strftime("%b-%Y").upper()
+print(f"🔍 Looking for sheet: {month_year}")
 
 try:
-    worksheet = sheet.worksheet(sheet_name)
-    print(f"✅ Found worksheet: {sheet_name}")
+    worksheet = sheet.worksheet(month_year)
+    print(f"✅ Found worksheet: {month_year}")
 except:
-    print(f"❌ Worksheet {sheet_name} not found")
+    print(f"❌ Worksheet {month_year} not found")
     exit(1)
 
 rows = worksheet.get_all_records()
-print(f"📄 Found {len(rows)} rows")
-
-# Loop through events
 today_str = now_ist.strftime('%Y-%m-%d')
 print(f"📅 Filtering events for today: {today_str}")
 
-def format_date(utc_date_str):
-    dt = datetime.strptime(utc_date_str, "%Y-%m-%d %H:%M:%S")
-    return dt.strftime("%A, %d %B %Y")  # E.g., Saturday, 24 May 2025
+def format_date(dt_str):
+    dt = datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S")
+    return dt.strftime("%A, %d %B %Y")
 
-def utc_to_ist_ampm(utc_datetime_str):
-    utc = pytz.utc
-    ist = pytz.timezone("Asia/Kolkata")
-    utc_time = utc.localize(datetime.strptime(utc_datetime_str, "%Y-%m-%d %H:%M:%S"))
-    ist_time = utc_time.astimezone(ist)
-    return ist_time.strftime("%I:%M %p")  # E.g., 06:30 PM
+def utc_to_ist_ampm(utc_str):
+    utc_dt = utc.localize(datetime.strptime(utc_str, "%Y-%m-%d %H:%M:%S"))
+    return utc_dt.astimezone(ist).strftime("%I:%M %p")
 
+def send_discord_reminder(data, event_link, time_remaining):
+    time_label = f"\u23F0 {time_remaining} minutes!! to " if time_remaining else ""
+    embed = {
+        "image": {"url": data.get("banner")},
+        "title": f"{time_label}{data.get('name', 'TruckersMP Event')}",
+        "url": event_link,
+        "color": 16776960,
+        "fields": [
+            {
+                "name": "",
+                "value": (
+                    f"**\ud83d\udee0 VTC** : {data.get('vtc', {}).get('name', 'Unknown VTC')}\n\n"
+                    f"**\ud83d\uddd5 Date** : {format_date(data['start_at'])}\n\n"
+                    f"**\u23f0 Meetup Time** : {data['meetup_at'].split(' ')[1][:5]} UTC "
+                    f"({utc_to_ist_ampm(data['meetup_at'])} IST)\n\n"
+                    f"**\ud83d\ude80 Departure Time** : {data['start_at'].split(' ')[1][:5]} UTC "
+                    f"({utc_to_ist_ampm(data['start_at'])} IST)\n\n"
+                    f"**\ud83d\udda5 Server** : {data.get('server', {}).get('name', 'Unknown Server')}\n\n"
+                    f"**\ud83d\ude8f Departure** : {data.get('departure', {}).get('city', 'Unknown')} "
+                    f"({data.get('departure', {}).get('location', 'Unknown')})\n\n"
+                    f"**\ud83c\udfaf Arrival** : {data.get('arrive', {}).get('city', 'Unknown')} "
+                    f"({data.get('arrive', {}).get('location', 'Unknown')})\n\n"
+                ),
+                "inline": False
+            }
+        ],
+        "footer": {"text": "by TNL | PRIYADARSHAN"},
+    }
+
+    payload = {
+        "content": f"||<@&{ROLE_ID}>||",
+        "embeds": [embed],
+    }
+
+    r = requests.post(os.environ['DISCORD_WEBHOOK_URL'], json=payload)
+    if r.status_code == 204:
+        print(f"✅ Reminder sent successfully to Discord.")
+    else:
+        print(f"❌ Failed to send to Discord: {r.status_code}, {r.text}")
 
 for row in rows:
-    event_link = row.get('TRUCKERSMP \nEVENT LINK ') 
+    event_link = row.get('TRUCKERSMP \nEVENT LINK ')
     date_str = row.get('DATE')
 
     if not event_link or not date_str:
-        print("⚠️ Skipping row due to missing event link or date.")
         continue
 
     try:
-        safe_date_str = date_str.replace('.', ':')
-        sheet_date = parser.parse(safe_date_str).astimezone(ist).date()
-        if sheet_date.strftime('%Y-%m-%d') != today_str:
+        safe_date = parser.parse(date_str.replace('.', ':')).astimezone(ist).date()
+        if safe_date.strftime('%Y-%m-%d') != today_str:
             continue
     except Exception as e:
-        print(f"❌ Failed to parse sheet date: {date_str} | Error: {e}")
+        print(f"❌ Invalid date format: {date_str} | {e}")
         continue
 
     try:
         event_id = event_link.split("/")[-1].split("-")[0]
-        api_url = f"https://api.truckersmp.com/v2/events/{event_id}"
-        res = requests.get(api_url)
-        if res.status_code != 200:
-            print(f"❌ Failed to fetch event API: {res.status_code}")
-            continue
-        data = res.json()['response']
-        event_time = datetime.strptime(data['start_at'], '%Y-%m-%d %H:%M:%S').replace(tzinfo=utc).astimezone(ist)
-        # reminder_time = event_time - timedelta(hours=1)
-        reminder_1h = event_time - timedelta(hours=1)
-        reminder_30m = event_time - timedelta(minutes=30)
-
-        print(f"🕐 Event: {data['name']} | Event time: {event_time.strftime('%Y-%m-%d %H:%M:%S')} IST | Reminder time for 1hr: {reminder_1h.strftime('%Y-%m-%d %H:%M:%S')} IST | Reminder time for 30min: {reminder_30m.strftime('%Y-%m-%d %H:%M:%S')} IST | Current time: {now_ist.strftime('%Y-%m-%d %H:%M:%S')} IST")
+        data = requests.get(f"https://api.truckersmp.com/v2/events/{event_id}").json()['response']
+        event_time = datetime.strptime(data['start_at'], "%Y-%m-%d %H:%M:%S").replace(tzinfo=utc).astimezone(ist)
     except Exception as e:
-        print(f"❌ Error fetching event timing from API: {e}")
+        print(f"❌ Failed to fetch event details: {e}")
         continue
 
+    for offset in [60, 30, 0]:
+        reminder_time = event_time - timedelta(minutes=offset)
+        window_start = reminder_time
+        window_end = reminder_time + timedelta(minutes=29, seconds=59)
 
-    reminder_1h = event_time - timedelta(hours=1)
-    reminder_30m = event_time - timedelta(minutes=30)
-
-    time_diff_1h = abs(( now_ist - reminder_1h).total_seconds())
-    time_diff_30m = abs((now_ist - reminder_30m).total_seconds())
-
-    window_1h_start = reminder_1h
-    window_1h_end = reminder_1h + timedelta(minutes=29, seconds=59)
-    
-    window_30m_start = reminder_30m
-    window_30m_end = reminder_30m + timedelta(minutes=29, seconds=59)
-
-    window_start_now = event_time
-    window_end_now = event_time + timedelta(minutes=4, seconds=59)
-    # Check 1-Hour Window
-    if window_1h_start <= now_ist <= window_1h_end:
-        print("✅ 1-Hour Reminder matched.")
-        # Calculate remaining time in minutes
-        try:
-            time_remaining_minutes = int((event_time - now_ist).total_seconds() // 60)
-            time_label = f"⏰ {time_remaining_minutes} minutes!! to "
-        except Exception as e:
-            time_label = ""
-            print(f"⚠️ Failed to calculate time remaining: {e}")
-        
-        # Use that in the embed title
-        thumbnail_url = data.get("banner")
-        embed = {
-            "image": {"url": thumbnail_url},
-            "title": f"{time_label}{data.get('name', 'TruckersMP Event')}",
-            "url": event_link,
-            "color": 16776960,
-            "fields": [
-                {
-                    "name": "",
-                    "value": (
-                        f"**🛠 VTC** : {data.get('vtc', {}).get('name', 'Unknown VTC')}\n\n"
-                        f"**📅 Date** : {format_date(data.get('start_at', ''))}\n\n"
-                        f"**⏰ Meetup Time** : {data.get('meetup_at', '').split(' ')[1][:5]} UTC "
-                        f"({utc_to_ist_ampm(data.get('meetup_at', ''))} IST)\n\n"
-                        f"**🚀 Departure Time** : {data.get('start_at', '').split(' ')[1][:5]} UTC "
-                        f"({utc_to_ist_ampm(data.get('start_at', ''))} IST)\n\n"
-                        f"**🖥 Server** : {data.get('server', {}).get('name', 'Unknown Server')}\n\n"
-                        f"**🚏 Departure** : {data.get('departure', {}).get('city', 'Unknown')} "
-                        f"({data.get('departure', {}).get('location', 'Unknown')})\n\n"
-                        f"**🎯 Arrival** : {data.get('arrive', {}).get('city', 'Unknown')} "
-                        f"({data.get('arrive', {}).get('location', 'Unknown')})\n\n"
-                    ),
-                    "inline": False
-                }
-            ],
-            "footer": {"text": "by TNL | PRIYADARSHAN"},
-        }
-
-        payload = {
-            "content": f"||<@&{ROLE_ID}>||",  # This mentions the role
-            "embeds": [embed],            # Your embed dict goes here
-        }
-
-        response = requests.post(
-            os.environ['DISCORD_WEBHOOK_URL'],
-            json=payload
-        )
-        if response.status_code == 204:
-            print("✅ 1hr Reminder sent successfully to Discord.")
-        else:
-              print(f"❌ 1hr Reminder Failed to send to Discord: {response.status_code}, {response.text}")
-    
-
-    elif window_30m_start <= now_ist <= window_30m_end:
-        print("✅ 30-Minute Reminder matched.")
-        try:
-            time_remaining_minutes = int((event_time - now_ist).total_seconds() // 60)
-            time_label = f"⏰ {time_remaining_minutes} minutes!! to "
-        except Exception as e:
-            time_label = ""
-            print(f"⚠️ Failed to calculate time remaining: {e}")
-        
-        # Use that in the embed title
-        thumbnail_url = data.get("banner")
-        embed = {
-            "image": {"url": thumbnail_url},
-            "title": f"{time_label}{data.get('name', 'TruckersMP Event')}",
-            "url": event_link,
-            "color": 16776960,
-            "fields": [
-                {
-                    "name": "",
-                    "value": (
-                        f"**🛠 VTC** : {data.get('vtc', {}).get('name', 'Unknown VTC')}\n\n"
-                        f"**📅 Date** : {format_date(data.get('start_at', ''))}\n\n"
-                        f"**⏰ Meetup Time** : {data.get('meetup_at', '').split(' ')[1][:5]} UTC "
-                        f"({utc_to_ist_ampm(data.get('meetup_at', ''))} IST)\n\n"
-                        f"**🚀 Departure Time** : {data.get('start_at', '').split(' ')[1][:5]} UTC "
-                        f"({utc_to_ist_ampm(data.get('start_at', ''))} IST)\n\n"
-                        f"**🖥 Server** : {data.get('server', {}).get('name', 'Unknown Server')}\n\n"
-                        f"**🚏 Departure** : {data.get('departure', {}).get('city', 'Unknown')} "
-                        f"({data.get('departure', {}).get('location', 'Unknown')})\n\n"
-                        f"**🎯 Arrival** : {data.get('arrive', {}).get('city', 'Unknown')} "
-                        f"({data.get('arrive', {}).get('location', 'Unknown')})\n\n"
-                    ),
-                    "inline": False
-                }
-            ],
-            "footer": {"text": "by TNL | PRIYADARSHAN"},
-        }
-
-        payload = {
-            "content": f"||<@&{ROLE_ID}>||",  # This mentions the role
-            "embeds": [embed],            # Your embed dict goes here
-        }
-
-        response = requests.post(
-            os.environ['DISCORD_WEBHOOK_URL'],
-            json=payload
-        )
-
-        if response.status_code == 204:
-            print("✅ 30min Reminder sent successfully to Discord.")
-        else:
-              print(f"❌ 30min Reminder Failed to send to Discord: {response.status_code}, {response.text}")
-    elif window_start_now <= now_ist <= window_end_now:
-        print("✅ Convoy started Reminder matched.")
-
-        # Use that in the embed title
-        thumbnail_url = data.get("banner")
-        embed = {
-            "image": {"url": thumbnail_url},
-            "title": f"Convoy has been started | {data.get('name', 'TruckersMP Event')}",
-            "url": event_link,
-            "color": 16776960,
-            "fields": [
-                {
-                    "name": "",
-                    "value": (
-                        f"**🛠 VTC** : {data.get('vtc', {}).get('name', 'Unknown VTC')}\n\n"
-                        f"**📅 Date** : {format_date(data.get('start_at', ''))}\n\n"
-                        f"**🖥 Server** : {data.get('server', {}).get('name', 'Unknown Server')}\n\n"
-                        f"**🚏 Departure** : {data.get('departure', {}).get('city', 'Unknown')} "
-                        f"({data.get('departure', {}).get('location', 'Unknown')})\n\n"
-                        f"**🎯 Arrival** : {data.get('arrive', {}).get('city', 'Unknown')} "
-                        f"({data.get('arrive', {}).get('location', 'Unknown')})\n\n"
-                    ),
-                    "inline": False
-                }
-            ],
-            "footer": {"text": "by TNL | PRIYADARSHAN"},
-        }
-
-        payload = {
-            "content": f"||<@&{ROLE_ID}>||",  # This mentions the role
-            "embeds": [embed],            # Your embed dict goes here
-        }
-
-        response = requests.post(
-            os.environ['DISCORD_WEBHOOK_URL'],
-            json=payload
-        )
-
-        if response.status_code == 204:
-            print("✅ 30min Reminder sent successfully to Discord.")
-        else:
-              print(f"❌ 30min Reminder Failed to send to Discord: {response.status_code}, {response.text}")
-
+        if window_start <= now_ist <= window_end:
+            print(f"✅ Matched reminder at T-{offset} minutes")
+            time_remaining = int((event_time - now_ist).total_seconds() // 60)
+            send_discord_reminder(data, event_link, time_remaining)
+            break
     else:
-        print("⏩ Not the time yet for reminder.")
-        continue
+        print("⏩ No reminder time matched.")
