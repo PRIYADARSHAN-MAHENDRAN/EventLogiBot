@@ -59,7 +59,7 @@ def utc_to_ist_ampm(utc_str):
     return utc_dt.astimezone(ist).strftime("%I:%M %p")
 
 def send_discord_reminder(data, event_link, time_remaining):
-    time_label = f"\u23F0 {time_remaining} minutes!! to " if time_remaining else ""
+    time_label = f"\u23F0 {time_remaining} minutes!! to " if time_remaining else "🚨 Event Started | "
     embed = {
         "image": {"url": data.get("banner")},
         "title": f"{time_label}{data.get('name', 'TruckersMP Event')}",
