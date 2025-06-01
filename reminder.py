@@ -112,7 +112,7 @@ for row in rows:
     reminder_1h = event_time - timedelta(hours=1)
     reminder_30m = event_time - timedelta(minutes=30)
 
-    time_diff_1h = abs(( - reminder_1h).total_seconds())
+    time_diff_1h = abs(( now_ist - reminder_1h).total_seconds())
     time_diff_30m = abs((now_ist - reminder_30m).total_seconds())
 
     window_1h_start = reminder_1h
