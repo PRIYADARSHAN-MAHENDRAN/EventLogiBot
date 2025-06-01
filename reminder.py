@@ -103,7 +103,7 @@ for row in rows:
         reminder_1h = event_time - timedelta(hours=1)
         reminder_30m = event_time - timedelta(minutes=30)
 
-        print(f"🕐 Event: {data['name']} | Event time: {event_time.strftime('%Y-%m-%d %H:%M:%S')} IST | Reminder time for 1hr: {reminder_1h.strftime('%Y-%m-%d %H:%M:%S')} IST | Reminder time for 30min: {reminder_30m.strftime('%Y-%m-%d %H:%M:%S')} IST | Current time: {.strftime('%Y-%m-%d %H:%M:%S')} IST")
+        print(f"🕐 Event: {data['name']} | Event time: {event_time.strftime('%Y-%m-%d %H:%M:%S')} IST | Reminder time for 1hr: {reminder_1h.strftime('%Y-%m-%d %H:%M:%S')} IST | Reminder time for 30min: {reminder_30m.strftime('%Y-%m-%d %H:%M:%S')} IST | Current time: {now_ist.strftime('%Y-%m-%d %H:%M:%S')} IST")
     except Exception as e:
         print(f"❌ Error fetching event timing from API: {e}")
         continue
