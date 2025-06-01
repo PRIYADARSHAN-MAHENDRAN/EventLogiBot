@@ -58,7 +58,7 @@ rows = worksheet.get_all_records()
 print(f"📄 Found {len(rows)} rows")
 
 # Loop through events
-today_str = .strftime('%Y-%m-%d')
+today_str = now_ist.strftime('%Y-%m-%d')
 print(f"📅 Filtering events for today: {today_str}")
 
 def format_date(utc_date_str):
