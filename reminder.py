@@ -14,7 +14,7 @@ print("⏰ Starting Event Reminder Script...")
 utc = pytz.utc
 ist = pytz.timezone("Asia/Kolkata")
 now_utc = datetime.utcnow().replace(tzinfo=utc)
-now_ist = datetime.now(ist)
+now_ist = ist.localize(datetime(2025, 6, 1, 17, 30, 0))
 print(f"Current time (UTC): {now_utc}")
 print(f"Current time (IST): {now_ist}")
 ROLE_ID = (os.environ['ROLE_ID'])
@@ -58,7 +58,7 @@ rows = worksheet.get_all_records()
 print(f"📄 Found {len(rows)} rows")
 
 # Loop through events
-today_str = now_ist.strftime('%Y-%m-%d')
+today_str = .strftime('%Y-%m-%d')
 print(f"📅 Filtering events for today: {today_str}")
 
 def format_date(utc_date_str):
@@ -103,7 +103,7 @@ for row in rows:
         reminder_1h = event_time - timedelta(hours=1)
         reminder_30m = event_time - timedelta(minutes=30)
 
-        print(f"🕐 Event: {data['name']} | Event time: {event_time.strftime('%Y-%m-%d %H:%M:%S')} IST | Reminder time for 1hr: {reminder_1h.strftime('%Y-%m-%d %H:%M:%S')} IST | Reminder time for 30min: {reminder_30m.strftime('%Y-%m-%d %H:%M:%S')} IST | Current time: {now_ist.strftime('%Y-%m-%d %H:%M:%S')} IST")
+        print(f"🕐 Event: {data['name']} | Event time: {event_time.strftime('%Y-%m-%d %H:%M:%S')} IST | Reminder time for 1hr: {reminder_1h.strftime('%Y-%m-%d %H:%M:%S')} IST | Reminder time for 30min: {reminder_30m.strftime('%Y-%m-%d %H:%M:%S')} IST | Current time: {.strftime('%Y-%m-%d %H:%M:%S')} IST")
     except Exception as e:
         print(f"❌ Error fetching event timing from API: {e}")
         continue
@@ -112,7 +112,7 @@ for row in rows:
     reminder_1h = event_time - timedelta(hours=1)
     reminder_30m = event_time - timedelta(minutes=30)
 
-    time_diff_1h = abs((now_ist - reminder_1h).total_seconds())
+    time_diff_1h = abs(( - reminder_1h).total_seconds())
     time_diff_30m = abs((now_ist - reminder_30m).total_seconds())
 
     window_1h_start = reminder_1h
@@ -120,7 +120,9 @@ for row in rows:
     
     window_30m_start = reminder_30m
     window_30m_end = reminder_30m + timedelta(minutes=29, seconds=59)
-    
+
+    window_start_now = event_time
+    window_end_now = event_time + timedelta(minutes=4, seconds=59)
     # Check 1-Hour Window
     if window_1h_start <= now_ist <= window_1h_end:
         print("✅ 1-Hour Reminder matched.")
@@ -202,6 +204,48 @@ for row in rows:
                         f"({utc_to_ist_ampm(data.get('meetup_at', ''))} IST)\n\n"
                         f"**🚀 Departure Time** : {data.get('start_at', '').split(' ')[1][:5]} UTC "
                         f"({utc_to_ist_ampm(data.get('start_at', ''))} IST)\n\n"
+                        f"**🖥 Server** : {data.get('server', {}).get('name', 'Unknown Server')}\n\n"
+                        f"**🚏 Departure** : {data.get('departure', {}).get('city', 'Unknown')} "
+                        f"({data.get('departure', {}).get('location', 'Unknown')})\n\n"
+                        f"**🎯 Arrival** : {data.get('arrive', {}).get('city', 'Unknown')} "
+                        f"({data.get('arrive', {}).get('location', 'Unknown')})\n\n"
+                    ),
+                    "inline": False
+                }
+            ],
+            "footer": {"text": "by TNL | PRIYADARSHAN"},
+        }
+
+        payload = {
+            "content": f"||<@&{ROLE_ID}>||",  # This mentions the role
+            "embeds": [embed],            # Your embed dict goes here
+        }
+
+        response = requests.post(
+            os.environ['DISCORD_WEBHOOK_URL'],
+            json=payload
+        )
+
+        if response.status_code == 204:
+            print("✅ 30min Reminder sent successfully to Discord.")
+        else:
+              print(f"❌ 30min Reminder Failed to send to Discord: {response.status_code}, {response.text}")
+    elif window_start_now <= now_ist <= window_end_now:
+        print("✅ Convoy started Reminder matched.")
+
+        # Use that in the embed title
+        thumbnail_url = data.get("banner")
+        embed = {
+            "image": {"url": thumbnail_url},
+            "title": f"Convoy has been started | {data.get('name', 'TruckersMP Event')}",
+            "url": event_link,
+            "color": 16776960,
+            "fields": [
+                {
+                    "name": "",
+                    "value": (
+                        f"**🛠 VTC** : {data.get('vtc', {}).get('name', 'Unknown VTC')}\n\n"
+                        f"**📅 Date** : {format_date(data.get('start_at', ''))}\n\n"
                         f"**🖥 Server** : {data.get('server', {}).get('name', 'Unknown Server')}\n\n"
                         f"**🚏 Departure** : {data.get('departure', {}).get('city', 'Unknown')} "
                         f"({data.get('departure', {}).get('location', 'Unknown')})\n\n"
