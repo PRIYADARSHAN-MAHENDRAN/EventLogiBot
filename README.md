@@ -1,5 +1,5 @@
 
-# 🚛 TruckersMP Daily Discord Notifier
+#  Daily Discord Notifier
 
 This bot automatically fetches **TruckersMP event details** scheduled for the **current day** from a **Google Sheet**, retrieves event data from the **TruckersMP API**, and sends a rich embed message to a **Discord webhook**, tagging a specific role.
 
