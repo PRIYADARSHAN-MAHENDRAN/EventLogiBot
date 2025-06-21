@@ -133,8 +133,8 @@ for row in rows:
                             f"**🎯 Arrival** : {data.get('arrive', {}).get('city', 'Unknown')} "
                             f"({data.get('arrive', {}).get('location', 'Unknown')})\n\n"
                             f"**💬 Thank You Message:**\n\n"
-                            f"💛 Thank you, {event_data.get('vtc', {}).get('name', 'your VTC')}. "
-                            f"For inviting us to your {event_data.get('name', 'event')}. "
+                            f"💛 Thank you, {data.get('vtc', {}).get('name', 'your VTC')}. "
+                            f"For inviting us to your {data.get('name', 'event')}. "
                             f"We had a great time and enjoyed it a lot! - TAMILNADU LOGISTICS 💛"
                         ),
                         "inline": False,
