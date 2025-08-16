@@ -164,7 +164,7 @@ for event_link, row in event_links_today:
             "inline": False
         },
     ],
-    "footer": {"text": "by TNL | PRIYADARSHAN"},
+    "footer": {"text": "by TNL | EVENT MANAGEMENT"},
     "timestamp": timestamp_ist
 
 }
