@@ -16,6 +16,7 @@ from calendar import month_name as calendar_month_name
 # === Configuration ===
 
 ROLE_ID = (os.environ['ROLE_ID'])
+ROLE_ID1 = (os.environ['ROLE_ID1'])
 DISCORD_WEBHOOK = (os.environ['DISCORD_WEBHOOK'])
 SHEET_ID = (os.environ['SHEET_ID'])
 
@@ -174,7 +175,7 @@ for event_link, row in event_links_today:
         "Content-Type": "application/json"
     }
     payload = {
-        "content": f"||<@&{ROLE_ID}>||",
+        "content": f"||<@&{ROLE_ID}><@&{ROLE_ID1}>||",
         "embeds": [embed],
     }
     resp = requests.post(DISCORD_WEBHOOK, headers=headers, json=payload)
