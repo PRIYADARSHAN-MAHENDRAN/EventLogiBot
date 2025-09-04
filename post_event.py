@@ -129,6 +129,12 @@ for event_link, row in event_links_today:
     else:
         dlc_display = "Base Map"
 
+    # === Pick Thank You Name ===
+    thank_you_name = event_data.get('vtc', {}).get('name')
+    if not thank_you_name or thank_you_name.strip() == "":
+        thank_you_name = event_data.get('user', {}).get('username', 'your VTC')
+
+    
     # === Prepare Discord Embed ===
     thumbnail_url = event_data.get("banner")
 
@@ -158,7 +164,7 @@ for event_link, row in event_links_today:
                     + (f"**Map**: {event_data.get('map')}\n\n" if event_data.get('map') else "")
                     + (f"**Slot**: {slot_link}\n\n" if slot_link else "")
                     + "**💬 Thank You Message:**\n\n"
-                    + f"💛 Thank you, {event_data.get('vtc', {}).get('name', 'your VTC')}. "
+                    + f"💛 Thank you, {thank_you_name}. "
                       f"For inviting us to your {event_data.get('name', 'event')}. "
                       f"We had a great time and enjoyed it a lot! - TAMILNADU LOGISTICS 💛"
                 ),
