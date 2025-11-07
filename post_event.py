@@ -89,7 +89,7 @@ def parse_flexible_date(date_str):
         try:
             return datetime.strptime(date_str.strip(), fmt).date()
         except ValueError:
-            send_error(e)
+            send_error("","")
             continue
     return None
 
