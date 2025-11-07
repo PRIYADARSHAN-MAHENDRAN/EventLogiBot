@@ -12,40 +12,30 @@ from io import BytesIO
 from bs4 import BeautifulSoup
 from calendar import month_name as calendar_month_name
 
-def send_error(error, context=""):
-    """
-    Sends detailed error info to a secondary Discord webhook.
-    Requires environment variables:
-    - ERROR_WEBHOOK   : webhook for error notifications
-    - ERROR_MENTIONS  : (optional) space-separated mentions (<@id> or <@&id>)
-    """
-    import os
-    webhook = os.getenv("ERROR_WEBHOOK")
-    mentions = os.getenv("ERROR_MENTIONS", "")
-    if not webhook:
-        print("⚠️ ERROR_WEBHOOK not set, skipping error report.")
+# --- Global list to collect errors ---
+error_log = []
+
+def send_error_report():
+    """Send one combined error report to Discord at the end."""
+    if not error_log:
         return
-
-    # Format the error message
-    if isinstance(error, Exception):
-        import traceback
-        err_text = "".join(traceback.format_exception(type(error), error, error.__traceback__))
-    else:
-        err_text = str(error)
-
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    content = (
-        f"{mentions} ⚠️ **Error Occurred** at {timestamp}\n"
-        + (f"**Context:** {context}\n" if context else "")
-        + f"```{err_text[:1800]}```"
-    )
-
     try:
-        res = requests.post(webhook, json={"content": content})
-        res.raise_for_status()
-        print(f"✅ Error report sent to Discord ({len(err_text)} chars)")
-    except Exception as send_err:
-        print(f"❌ Failed to send error report: {send_err}")
+        combined = "\n".join(error_log)
+        payload = {
+            "content": f"{os.environ.get('ERROR_MENTIONS', '')}\n❌ **Error Summary:**\n```{combined}```"
+        }
+        res = requests.post(ERROR_WEBHOOK, json=payload)
+        if res.status_code in [200, 204]:
+            print(f"✅ Sent combined error report ({len(error_log)} errors)")
+        else:
+            print(f"❌ Failed to send combined error report: {res.status_code}")
+    except Exception as e:
+        print(f"❌ send_error_report failed: {e}")
+
+def send_error(e, context=""):
+    """Collect individual errors without spamming Discord."""
+    msg = f"{context}: {e}"
+    error_log.append(msg)
 
 # === Configuration ===
 
@@ -275,3 +265,5 @@ for event_link, row in event_links_today:
 
 
     time.sleep(1)
+
+send_error_report()
