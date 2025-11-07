@@ -23,7 +23,7 @@ def send_error_report():
 
     try:
         mentions = os.environ.get("ERROR_ROLE", "")
-        content = f"{mentions}\n❌ **Error Summary:**\n```" + "\n".join(error_log) + "```"
+        content = f"||{mentions}||\n❌ **Error Summary:**\n```" + "\n".join(error_log) + "```"
 
         payload = {
             "content": content,  # mentions must be in content, not embeds
