@@ -17,7 +17,9 @@ error_log = []
 
 def send_error_report():
     """Send one combined error report to Discord at the end."""
+    print(error_log)
     if not error_log:
+        print("No error found")
         return
     try:
         combined = "\n".join(error_log)
