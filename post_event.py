@@ -16,23 +16,28 @@ from calendar import month_name as calendar_month_name
 error_log = []
 
 def send_error_report():
-    """Send one combined error report to Discord at the end."""
     print(error_log)
     if not error_log:
-        print("No error found")
+        print("✅ No errors to report.")
         return
+
     try:
-        combined = "\n".join(error_log)
+        mentions = os.environ.get("ERROR_MENTIONS", "")
+        content = f"{mentions}\n❌ **Error Summary:**\n```" + "\n".join(error_log) + "```"
+
         payload = {
-            "content": f"{os.environ.get('ERROR_MENTIONS', '')}\n❌ **Error Summary:**\n```{combined}```"
+            "content": content,  # mentions must be in content, not embeds
+            "allowed_mentions": {
+                "parse": ["roles", "users"]
+            }
         }
+
         res = requests.post(ERROR_WEBHOOK, json=payload)
-        if res.status_code in [200, 204]:
-            print(f"✅ Sent combined error report ({len(error_log)} errors)")
-        else:
-            print(f"❌ Failed to send combined error report: {res.status_code}")
+        res.raise_for_status()
+        print(f"✅ Error report sent to Discord ({len(error_log)} errors)")
     except Exception as e:
-        print(f"❌ send_error_report failed: {e}")
+        print(f"❌ Failed to send error report: {e}")
+
 
 def send_error(e, context=""):
     """Collect individual errors without spamming Discord."""
