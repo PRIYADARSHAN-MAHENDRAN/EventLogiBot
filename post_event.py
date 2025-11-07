@@ -270,5 +270,4 @@ for event_link, row in event_links_today:
 
 
     time.sleep(1)
-
-send_error_report()
+    send_error_report()
