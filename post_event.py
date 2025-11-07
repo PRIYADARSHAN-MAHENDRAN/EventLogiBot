@@ -23,6 +23,7 @@ def send_error_report():
 
     try:
         mentions = os.environ.get("ERROR_MENTIONS", "")
+        print(mentions)
         content = f"{mentions}\n❌ **Error Summary:**\n```" + "\n".join(error_log) + "```"
 
         payload = {
