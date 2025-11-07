@@ -83,7 +83,7 @@ def parse_flexible_date(date_str):
                 continue
         raise ValueError(f"No valid date format found for '{date_str}'")
     except Exception as e:
-            send_error(e, f"parse_flexible_date failed for date: {date_str}")
+        send_error(e, f"parse_flexible_date failed for date: {date_str}")
         return None
 
 # === Time Conversion Helpers ===
