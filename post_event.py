@@ -142,7 +142,7 @@ for row in data:
 if not event_links_today:
     print("❌ No events found for today.")
     send_error("❌ No events found for today.", "Event Checker")
-
+    send_error_report()
     exit(0)
 
 
