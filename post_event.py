@@ -67,21 +67,24 @@ client = gspread.authorize(creds)
 
 def parse_flexible_date(date_str):
     """Try multiple date formats to extract date from sheet"""
-    date_formats = [
-        "%A, %B %d, %Y %H.%M",  # Saturday, April 05, 2025 22.30
-        "%a, %b %d, %Y %H.%M",  # Wed, Apr 2, 2025 22.30
-        "%A, %B %d, %Y",        # Saturday, April 05, 2025
-        "%a, %b %d, %Y",        # Wed, Apr 2, 2025
-        "%d/%m/%Y",             # 26/4/2025
-        "%d-%m-%Y"              # 26-04-2025
-    ]
-    for fmt in date_formats:
-        try:
-            return datetime.strptime(date_str.strip(), fmt).date()
-        except ValueError:
-            send_error("","")
-            continue
-    return None
+    try:
+        date_formats = [
+            "%A, %B %d, %Y %H.%M",  # Saturday, April 05, 2025 22.30
+            "%a, %b %d, %Y %H.%M",  # Wed, Apr 2, 2025 22.30
+            "%A, %B %d, %Y",        # Saturday, April 05, 2025
+            "%a, %b %d, %Y",        # Wed, Apr 2, 2025
+            "%d/%m/%Y",             # 26/4/2025
+            "%d-%m-%Y"              # 26-04-2025
+        ]
+        for fmt in date_formats:
+            try:
+                return datetime.strptime(date_str.strip(), fmt).date()
+            except ValueError:
+                continue
+        raise ValueError(f"No valid date format found for '{date_str}'")
+    except Exception as e:
+            send_error(e, f"parse_flexible_date failed for date: {date_str}")
+        return None
 
 # === Time Conversion Helpers ===
 
