@@ -123,7 +123,7 @@ try:
 except gspread.exceptions.WorksheetNotFound:
     print(f"❌ Sheet '{month_name}' has not found.")
     send_error("❌ Sheet has not found so kindly check month name in sheet", "Event Checker")
-
+    send_error_report()
     exit(0)
 
 event_links_today = []
