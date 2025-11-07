@@ -45,6 +45,8 @@ ROLE_ID = (os.environ['ROLE_ID'])
 ROLE_ID1 = (os.environ['ROLE_ID1'])
 DISCORD_WEBHOOK = (os.environ['DISCORD_WEBHOOK'])
 SHEET_ID = (os.environ['SHEET_ID'])
+ERROR_WEBHOOK = os.environ['ERROR_WEBHOOK']
+
 
 # === Time Setup ===
 
@@ -270,4 +272,4 @@ for event_link, row in event_links_today:
 
 
     time.sleep(1)
-    send_error_report()
+send_error_report()
