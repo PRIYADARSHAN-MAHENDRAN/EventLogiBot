@@ -35,6 +35,8 @@ jobs:
             echo "ROLE_ID1=${{ secrets.ROLE_ID3 }}" >> $GITHUB_ENV
             echo "DISCORD_WEBHOOK=${{ secrets.DISCORD_WEBHOOK1 }}" >> $GITHUB_ENV
             echo "SHEET_ID=${{ secrets.SHEET_ID1 }}" >> $GITHUB_ENV
+            echo "ERROR_WEBHOOK=${{ secrets.ERROR_WEBHOOK }}" >> $GITHUB_ENV
+            echo "ERROR_ROLE=${{ secrets.ERROR_ROLE_MEMBER }}" >> $GITHUB_ENV
           else
             ENV_INPUT="${{ github.event.inputs.environment }}"
             if [[ "$ENV_INPUT" == "pro" ]]; then
@@ -42,6 +44,8 @@ jobs:
               echo "ROLE_ID1=${{ secrets.ROLE_ID3 }}" >> $GITHUB_ENV
               echo "DISCORD_WEBHOOK=${{ secrets.DISCORD_WEBHOOK1 }}" >> $GITHUB_ENV
               echo "SHEET_ID=${{ secrets.SHEET_ID1 }}" >> $GITHUB_ENV
+              echo "ERROR_WEBHOOK=${{ secrets.ERROR_WEBHOOK }}" >> $GITHUB_ENV
+              echo "ERROR_ROLE=${{ secrets.ERROR_ROLE_MEMBER }}" >> $GITHUB_ENV
             else
               echo "ROLE_ID=${{ secrets.ROLE_ID2 }}" >> $GITHUB_ENV
               echo "ROLE_ID1=${{ secrets.ROLE_ID2 }}" >> $GITHUB_ENV
