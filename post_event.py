@@ -3,6 +3,7 @@ import gspread
 import requests
 import json
 import time
+import traceback
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime, timedelta
 from pytz import timezone
@@ -11,7 +12,40 @@ from io import BytesIO
 from bs4 import BeautifulSoup
 from calendar import month_name as calendar_month_name
 
+def send_error(error, context=""):
+    """
+    Sends detailed error info to a secondary Discord webhook.
+    Requires environment variables:
+    - ERROR_WEBHOOK   : webhook for error notifications
+    - ERROR_MENTIONS  : (optional) space-separated mentions (<@id> or <@&id>)
+    """
+    import os
+    webhook = os.getenv("ERROR_WEBHOOK")
+    mentions = os.getenv("ERROR_MENTIONS", "")
+    if not webhook:
+        print("⚠️ ERROR_WEBHOOK not set, skipping error report.")
+        return
 
+    # Format the error message
+    if isinstance(error, Exception):
+        import traceback
+        err_text = "".join(traceback.format_exception(type(error), error, error.__traceback__))
+    else:
+        err_text = str(error)
+
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    content = (
+        f"{mentions} ⚠️ **Error Occurred** at {timestamp}\n"
+        + (f"**Context:** {context}\n" if context else "")
+        + f"```{err_text[:1800]}```"
+    )
+
+    try:
+        res = requests.post(webhook, json={"content": content})
+        res.raise_for_status()
+        print(f"✅ Error report sent to Discord ({len(err_text)} chars)")
+    except Exception as send_err:
+        print(f"❌ Failed to send error report: {send_err}")
 
 # === Configuration ===
 
@@ -55,6 +89,7 @@ def parse_flexible_date(date_str):
         try:
             return datetime.strptime(date_str.strip(), fmt).date()
         except ValueError:
+            send_error(e)
             continue
     return None
 
@@ -67,6 +102,7 @@ def utc_to_ist_ampm(utc_str):
         return dt_ist.strftime("%I:%M %p")  # 12-hour format with AM/PM
     except Exception as e:
         print(f"Error converting UTC to IST: {e}")
+        send_error(e, "Error converting UTC to IST")
         return "N/A"
 
 def format_date(utc_str):
@@ -76,6 +112,7 @@ def format_date(utc_str):
         return dt.strftime("%d-%m-%Y")
     except Exception as e:
         print(f"Error formatting date: {e}")
+        send_error(e, "Error formatting date")
         return "N/A"
 
 
@@ -88,6 +125,8 @@ try:
     print(f"✅ Sheet '{month_name}' has found.")
 except gspread.exceptions.WorksheetNotFound:
     print(f"❌ Sheet '{month_name}' has not found.")
+    send_error("❌ Sheet has not found so kindly check month name in sheet", "Event Checker")
+
     exit(0)
 
 event_links_today = []
@@ -105,6 +144,8 @@ for row in data:
 
 if not event_links_today:
     print("❌ No events found for today.")
+    send_error("❌ No events found for today.", "Event Checker")
+
     exit(0)
 
 
@@ -115,6 +156,8 @@ for event_link, row in event_links_today:
     response = requests.get(f"https://api.truckersmp.com/v2/events/{event_id}")
     if response.status_code != 200:
         print(f"❌ Failed to fetch data for event {event_id}")
+        send_error("❌ Failed to fetch data for event", "Event Checker")
+
         continue
 
     event_data = response.json().get('response', {})
@@ -191,6 +234,8 @@ for event_link, row in event_links_today:
     else:
         print(f"❌ Failed to post event {event_id} to Discord: {resp.status_code}")
         print(resp.text)
+        send_error("❌ Failed to post event to Discord", "Event Checker")
+
 
     time.sleep(1)
     # === Send Route Map as plain message ===
@@ -204,8 +249,12 @@ for event_link, row in event_links_today:
             print("✅ Map image sent with caption.")
         else:
             print(f"❌ Failed to send map image: {resp.status_code}")
+            send_error("Failed to send map image", "Event Checker")
+
     else:
         print("❌ Could not fetch map image.")
+        send_error("Could not fetch map image", "Event Checker")
+
 
     time.sleep(1)
     
@@ -218,7 +267,11 @@ for event_link, row in event_links_today:
             print("✅ Slot image sent with caption.")
         else:
             print(f"❌ Failed to send slot image: {resp.status_code}")
+            send_error("Failed to send slot image", "Event Checker")
+
     else:
         print("❌ Could not fetch slot image.")
+        send_error("Could not fetch slot image", "Event Checker")
+
 
     time.sleep(1)
