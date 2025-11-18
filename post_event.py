@@ -59,7 +59,7 @@ tz_ist = timezone('Asia/Kolkata')
 today = datetime.now(tz_ist).date()
 timestamp_ist = datetime.now(tz_ist).isoformat()
 print(f"Today: {today}\n"+f"IST time: {timestamp_ist}")
-month_name = today.strftime("%b").upper() + str(today.year)  # E.g., "April 2025"
+month_name = today.strftime("%b").upper() +" " + str(today.year)  # E.g., "April 2025"
 
 # === Authenticate with Google Sheets ===
 
