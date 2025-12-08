@@ -89,7 +89,7 @@ for row in rows:
         api_url = f"https://api.truckersmp.com/v2/events/{event_id}"
         res = requests.get(api_url)
         if res.status_code != 200:
-            print(f"❌ Failed to fetch event API: {res.status_code}")
+            print(f"❌ Failed fetch event API: {res.status_code}")
             continue
         data = res.json()["response"]
         event_time = datetime.strptime(data["start_at"], "%Y-%m-%d %H:%M:%S").replace(tzinfo=utc).astimezone(ist)
