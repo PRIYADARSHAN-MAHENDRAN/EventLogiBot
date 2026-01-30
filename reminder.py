@@ -152,7 +152,7 @@ for row in rows:
             if response.status_code == 204:
                 print(f"✅ {window_minutes}-minute reminder sent successfully to Discord.")
             else:
-                print(f"❌ Failed to send reminder: {response.status_code}, {response.text}")
+                print(f"❌ Failed to send reminder {response.status_code}, {response.text}")
             break
         else:
             print(f"⏩ Skipping {window_minutes}-minute window.")
