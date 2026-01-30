@@ -23,7 +23,7 @@ try:
     creds_dict = json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT_KEY"])
     print("✅ Loaded GOOGLE_SERVICE_ACCOUNT_KEY")
 except KeyError:
-    print("❌ GOOGLE_SERVICE_ACCOUNT_KEY not found in environment variables.")
+    print("❌GOOGLE_SERVICE_ACCOUNT_KEY not found in environment variables.")
     exit(1)
 
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
