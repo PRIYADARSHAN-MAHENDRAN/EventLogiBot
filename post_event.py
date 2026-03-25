@@ -203,8 +203,8 @@ for event_link, row in event_links_today:
     if is_event_today(today, meetup_utc):
         print("✅ Event matches today's IST logic")
     else:
-        print(f"❌Date mismatch (Sheet: {today}, API: {api_date})")
-        send_error(f"❌ Date mismatch (Sheet: {today}, API: {api_date})", "Validation")
+        print(f"❌Date mismatch (Sheet: {today}, API: {utc_to_ist_datetime(meetup_utc).date()})")
+        send_error(f"❌ Date mismatch (Sheet: {today}, API: {utc_to_ist_datetime(meetup_utc).date()})", "Validation")
         continue
     
     # === Extract slot info from Google Sheet row ===
