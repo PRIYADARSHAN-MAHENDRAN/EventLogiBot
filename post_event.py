@@ -120,7 +120,18 @@ def format_date(utc_str):
 
 # === Step 1: Get Today’s Event Links from Google Sheet ===
 
-spreadsheet = client.open_by_key(SHEET_ID)
+def open_sheet_with_retry(client, sheet_id, retries=5):
+    for i in range(retries):
+        try:
+            print(f"Opening sheet (Attempt {i+1})...")
+            return client.open_by_key(sheet_id)
+        except Exception as e:
+            print(f"❌ Attempt {i+1} failed: {e}")
+            time.sleep(5)
+    raise Exception("❌ Failed to open Google Sheet after multiple attempts")
+
+spreadsheet = open_sheet_with_retry(client, SHEET_ID)
+
 # Try to open only the current month sheet
 try:
     sheet = spreadsheet.worksheet(month_name)
