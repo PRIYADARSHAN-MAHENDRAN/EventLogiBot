@@ -117,7 +117,30 @@ def format_date(utc_str):
         send_error(e, "Error formatting date")
         return "N/A"
 
+def utc_to_ist_datetime(utc_str):
+    dt_utc = datetime.strptime(utc_str, "%Y-%m-%d %H:%M:%S")
+    dt_ist = dt_utc + timedelta(hours=5, minutes=30)
+    return dt_ist
 
+def is_event_today(sheet_date, meetup_utc):
+    try:
+        dt_ist = utc_to_ist_datetime(meetup_utc)
+        event_date = dt_ist.date()
+        event_time = dt_ist.time()
+
+        # Case 1: Same day
+        if event_date == sheet_date:
+            return True
+
+        # Case 2: Next day but early morning (before 2 AM)
+        if event_date == sheet_date + timedelta(days=1) and event_time.hour < 2:
+            return True
+
+        return False
+
+    except Exception as e:
+        send_error(e, "Date validation failed")
+        return False
 # === Step 1: Get Today’s Event Links from Google Sheet ===
 
 def open_sheet_with_retry(client, sheet_id, retries=5):
@@ -146,7 +169,7 @@ event_links_today = []
 data = sheet.get_all_values()
 
 for row in data:
-    if len(row) >= 12 and row[11].strip().startswith("https://truckersmp.com/events"):
+    if row[11].strip().startswith("https://truckersmp.com/events"):
         raw_date = row[1].strip()
         event_date = parse_flexible_date(raw_date)
 
@@ -175,6 +198,14 @@ for event_link, row in event_links_today:
 
     event_data = response.json().get('response', {})
 
+    meetup_utc = event_data.get('meetup_at')
+
+    if is_event_today(today, meetup_utc):
+        print("✅ Event matches today's IST logic")
+    else:
+        print("❌ Event does not match")
+        continue
+    
     # === Extract slot info from Google Sheet row ===
     slot_no = row[9].strip() if len(row) > 9 and row[9].strip() else None
     slot_link = row[10].strip() if len(row) > 10 and row[10].strip() else None
