@@ -25,18 +25,16 @@ error_log = []
 # =========================
 
 def send_error(e, context=""):
-    """Collect individual errors without spamming Discord."""
     msg = f"{context}: {e}"
     error_log.append(msg)
     
 def send_error_report():
-    print(error_log)
     if not error_log:
         print("✅ No errors to report.")
         return
     try:
         mentions = os.environ.get("ERROR_ROLE", "")
-        content = f"||{mentions}||\n❌ **Error Summary:**\n\n"
+        content = f"||{mentions}||\n❌ **Error Summary ({len(error_log)} errors):**\n\n"
         for err in error_log:
             content += f"• {err}\n"
         payload = {
@@ -191,7 +189,8 @@ for idx, row in enumerate(data, start=1):
     # Fetch API
     event_data = fetch_event(event_id)
     if not event_data:
-        send_error(f"Failed to fetch event: https://truckersmp.com/events/{event_id}", "API")
+        print(f"Failed to fetch event details: https://truckersmp.com/events/{event_id}")
+        send_error(f"Failed to fetch event details: https://truckersmp.com/events/{event_id}", "API")
         continue
 
     meetup_utc = event_data.get("meetup_at")
@@ -318,4 +317,5 @@ for idx, row in enumerate(data, start=1):
 
 
     time.sleep(1)
+    print("Next event check")
 send_error_report()
