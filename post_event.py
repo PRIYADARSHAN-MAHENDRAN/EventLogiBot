@@ -39,7 +39,13 @@ def send_error_report():
     except Exception as e:
         print(f"❌ Failed to send error report: {e}")
 
-
+def is_event_today_ist(meetup_utc):
+    try:
+        dt_ist = utc_to_ist_datetime(meetup_utc)
+        return dt_ist.date() == today
+    except Exception as e:
+        send_error(e, "IST date check failed")
+        return False
 def send_error(e, context=""):
     """Collect individual errors without spamming Discord."""
     msg = f"{context}: {e}"
