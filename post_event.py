@@ -3,6 +3,7 @@ import gspread
 import requests
 import json
 import time
+import re
 import traceback
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime, timedelta
@@ -141,6 +142,18 @@ def is_event_today(sheet_date, meetup_utc):
     except Exception as e:
         send_error(e, "Date validation failed")
         return False
+
+def fetch_event(event_id, retries=3):
+    for _ in range(retries):
+        try:
+            res = requests.get(f"https://api.truckersmp.com/v2/events/{event_id}")
+            if res.status_code == 200:
+                return res.json().get("response", {})
+        except:
+            pass
+        time.sleep(2)
+    return None
+
 # === Step 1: Get Today’s Event Links from Google Sheet ===
 
 def open_sheet_with_retry(client, sheet_id, retries=5):
@@ -165,51 +178,44 @@ except gspread.exceptions.WorksheetNotFound:
     send_error_report()
     exit(0)
 
-event_links_today = []
 data = sheet.get_all_values()
 
-for row in data:
-    if row[11].strip().startswith("https://truckersmp.com/events"):
-        raw_date = row[1].strip()
-        event_date = parse_flexible_date(raw_date)
+for idx, row in enumerate(data, start=1):
 
-        if event_date == today:
-            event_url = row[11].strip()
-            print(f"✅ Found event for today in '{month_name}': {event_url}")
-            event_links_today.append((event_url, row))
-
-if not event_links_today:
-    print("❌ No events found for today.")
-    send_error("❌ No events found for today.", "Event Checker")
-    send_error_report()
-    exit(0)
-
-
-for event_link, row in event_links_today:
-    event_id = event_link.strip('/').split('/')[-1].split('-')[0]
-
-
-    response = requests.get(f"https://api.truckersmp.com/v2/events/{event_id}")
-    if response.status_code != 200:
-        print(f"❌ Failed to fetch data for event {event_id}")
-        send_error("❌ Failed to fetch data for event", "Event Checker")
-
+    if len(row) <= 11:
         continue
 
-    event_data = response.json().get('response', {})
-
-    meetup_utc = event_data.get('meetup_at')
-
-    if is_event_today(today, meetup_utc):
-        print("✅ Event matches today's IST logic")
-    else:
-        print(f"❌Date mismatch (Sheet: {today}, API: {utc_to_ist_datetime(meetup_utc).date()})")
-        send_error(f"❌ Date mismatch (Sheet: {today}, Truckersmp: {utc_to_ist_datetime(meetup_utc).date()})", "Validation")
+    event_link = row[11].strip()
+    if not event_link.startswith("https://truckersmp.com/events"):
         continue
-    
-    # === Extract slot info from Google Sheet row ===
+
+    # Extract event ID
+    match = re.search(r"events/(\d+)", event_link)
+    if not match:
+        continue
+    event_id = match.group(1)
+
+    # Fetch API
+    event_data = fetch_event(event_id)
+    if not event_data:
+        send_error(f"Failed API for {event_id}", "API")
+        continue
+
+    meetup_utc = event_data.get("meetup_at")
+    if not meetup_utc:
+        continue
+
+    # ✅ Check date using API only
+    if not is_event_today_ist(meetup_utc):
+        continue
+
+    print(f"✅ Today event found: {event_data.get('name')}")
+
+    # === Extract slot info from sheet ===
     slot_no = row[9].strip() if len(row) > 9 and row[9].strip() else None
     slot_link = row[10].strip() if len(row) > 10 and row[10].strip() else None
+
+    # === Continue with your embed + Discord post ===
     dlcs = event_data.get("dlcs", {})
     if dlcs:
         dlc_id, dlc_name = next(iter(dlcs.items()))
