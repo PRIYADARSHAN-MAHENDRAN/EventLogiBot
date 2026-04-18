@@ -24,8 +24,9 @@ def send_error_report():
 
     try:
         mentions = os.environ.get("ERROR_ROLE", "")
-        content = f"||{mentions}||\n❌ **Error Summary:**\n```" + "\n".join(error_log) + "```"
-
+        content = f"||{mentions}||\n❌ **Error Summary:**\n\n"
+        for err in error_log:
+            content += f"• {err}\n"
         payload = {
             "content": content,  # mentions must be in content, not embeds
             "allowed_mentions": {
@@ -204,7 +205,7 @@ for idx, row in enumerate(data, start=1):
     # Fetch API
     event_data = fetch_event(event_id)
     if not event_data:
-        send_error(f"Failed API for {event_id}", "API")
+        send_error(f"Failed to fetch event: https://truckersmp.com/events/{event_id}", "API")
         continue
 
     meetup_utc = event_data.get("meetup_at")
@@ -309,7 +310,7 @@ for idx, row in enumerate(data, start=1):
             send_error("Failed to send map image", "Event Checker")
 
     else:
-        print("❌ Could not fetch map image.")
+        print(f"❌ Could not fetch map image for {event_data.get('name', 'TruckersMP Event')}")
         send_error("Could not fetch map image", "Event Checker")
 
 
@@ -324,11 +325,11 @@ for idx, row in enumerate(data, start=1):
             print("✅ Slot image sent with caption.")
         else:
             print(f"❌ Failed to send slot image: {resp.status_code}")
-            send_error("Failed to send slot image", "Event Checker")
+            send_error(f"Failed to send slot image for {event_data.get('name', 'TruckersMP Event')}", "Event Checker")
 
     else:
-        print("❌ Could not fetch slot image.")
-        send_error("Could not fetch slot image", "Event Checker")
+        print(f"❌ Could not fetch slot image for {event_data.get('name', 'TruckersMP Event')}.")
+        send_error(f"Could not fetch slot image for {event_data.get('name', 'TruckersMP Event')}", "Event Checker")
 
 
     time.sleep(1)
