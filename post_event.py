@@ -292,7 +292,7 @@ for idx, row in enumerate(data, start=1):
     else:
         print(f"❌ Failed to post event {event_id} to Discord: {resp.status_code}")
         print(resp.text)
-        send_error("❌ Failed to post event to Discord", "Event Checker")
+        send_error("❌ Failed to post event to Discord for {event_data.get('name', 'TruckersMP Event')}", "Event Checker")
 
 
     time.sleep(1)
@@ -306,12 +306,12 @@ for idx, row in enumerate(data, start=1):
         if resp.status_code in [200, 204]:
             print("✅ Map image sent with caption.")
         else:
-            print(f"❌ Failed to send map image: {resp.status_code}")
-            send_error("Failed to send map image", "Event Checker")
+            print(f"❌ Failed to send map image for {event_data.get('name', 'TruckersMP Event')}: {resp.status_code}")
+            send_error("Failed to send map image for {event_data.get('name', 'TruckersMP Event')}", "Event Checker")
 
     else:
         print(f"❌ Could not fetch map image for {event_data.get('name', 'TruckersMP Event')}")
-        send_error("Could not fetch map image", "Event Checker")
+        send_error("Could not fetch map image for {event_data.get('name', 'TruckersMP Event')}", "Event Checker")
 
 
     time.sleep(1)
