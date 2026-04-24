@@ -165,7 +165,7 @@ except gspread.exceptions.WorksheetNotFound:
     exit(0)
 
 data = sheet.get_all_values()
-data = [row for row in data if any(cell.strip() for cell in row)]
+# data = [row for row in data if any(cell.strip() for cell in row)]
 print(f"Total rows fetched: {len(data)}")
 
 # =========================
