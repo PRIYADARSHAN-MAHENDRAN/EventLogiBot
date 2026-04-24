@@ -172,7 +172,7 @@ data = sheet.get_all_values()
 # =========================
 
 for idx, row in enumerate(data, start=1):
-
+    print(f"[Row {idx}] RAW LINK: {row[11]}")
     if len(row) <= 11:
         print(f"[Row {idx}] ❌ Skipped: Not enough columns")
         continue
