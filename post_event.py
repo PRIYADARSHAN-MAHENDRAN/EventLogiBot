@@ -188,6 +188,7 @@ for idx, row in enumerate(data, start=1):
 
     # Fetch API
     event_data = fetch_event(event_id)
+    print(f"Event ID:{event_id}")
     if not event_data:
         print(f"Failed to fetch event details: https://truckersmp.com/events/{event_id}")
         send_error(f"Failed to fetch event details: https://truckersmp.com/events/{event_id}", "API")
@@ -195,6 +196,7 @@ for idx, row in enumerate(data, start=1):
 
     meetup_utc = event_data.get("meetup_at")
     if not meetup_utc:
+        print("Date mismatch")
         continue
 
     # ✅ Check date using API only
