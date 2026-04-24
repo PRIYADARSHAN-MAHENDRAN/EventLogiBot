@@ -174,36 +174,55 @@ data = sheet.get_all_values()
 for idx, row in enumerate(data, start=1):
 
     if len(row) <= 11:
+        print(f"[Row {idx}] ❌ Skipped: Not enough columns")
         continue
-
+    
     event_link = row[11].strip()
+    
     if not event_link.startswith("https://truckersmp.com/events"):
+        print(f"[Row {idx}] ❌ Skipped: Invalid event link -> {event_link}")
         continue
-
+    
     # Extract event ID
     match = re.search(r"events/(\d+)", event_link)
     if not match:
+        print(f"[Row {idx}] ❌ Skipped: Event ID not found in link -> {event_link}")
         continue
+    
     event_id = match.group(1)
-
+    print(f"[Row {idx}] 🔍 Processing Event ID: {event_id}")
+    
     # Fetch API
     event_data = fetch_event(event_id)
-    print(f"Event ID:{event_id}")
+    
     if not event_data:
-        print(f"Failed to fetch event details: https://truckersmp.com/events/{event_id}")
+        print(f"[Row {idx}] ❌ API Failed: https://truckersmp.com/events/{event_id}")
         send_error(f"Failed to fetch event details: https://truckersmp.com/events/{event_id}", "API")
         continue
-
+    
+    print(f"[Row {idx}] ✅ API Success: {event_data.get('name', 'Unknown Event')}")
+    
     meetup_utc = event_data.get("meetup_at")
+    
     if not meetup_utc:
-        print("Date mismatch")
+        print(f"[Row {idx}] ❌ Skipped: 'meetup_at' missing in API")
         continue
-
+    
+    print(f"[Row {idx}] 🕒 Meetup UTC: {meetup_utc}")
+    
+    # Convert to IST for debug
+    try:
+        ist_time = utc_to_ist_datetime(meetup_utc)
+        print(f"[Row {idx}] 🇮🇳 IST Time: {ist_time}")
+    except Exception as e:
+        print(f"[Row {idx}] ❌ Error converting time: {e}")
+    
     # ✅ Check date using API only
     if not is_event_today_ist(meetup_utc):
+        print(f"[Row {idx}] ⏭ Skipped: Not today's event")
         continue
-
-    print(f"✅ Today event found: {event_data.get('name')}")
+    
+    print(f"[Row {idx}] 🎯 MATCH: Event is today!")
 
     # === Extract slot info from sheet ===
     slot_no = row[9].strip() if len(row) > 9 and row[9].strip() else None
