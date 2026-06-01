@@ -172,12 +172,12 @@ print(f"Total rows fetched: {len(data)}")
 # =========================
 
 for idx, row in enumerate(data, start=1):
-    print(f"[Row {idx}] RAW LINK: {row[11]}")
-    if len(row) <= 11:
+    print(f"[Row {idx}] RAW LINK: {row[9]}")
+    if len(row) <= 9:
         print(f"[Row {idx}] ❌ Skipped: Not enough columns")
         continue
     
-    event_link = row[11].strip()
+    event_link = row[9].strip()
     
     if not event_link.startswith("https://truckersmp.com/events"):
         print(f"[Row {idx}] ❌ Skipped: Invalid event link -> {event_link}")
@@ -225,8 +225,8 @@ for idx, row in enumerate(data, start=1):
     print(f"[Row {idx}] 🎯 MATCH: Event is today!")
 
     # === Extract slot info from sheet ===
-    slot_no = row[9].strip() if len(row) > 9 and row[9].strip() else None
-    slot_link = row[10].strip() if len(row) > 10 and row[10].strip() else None
+    slot_no = row[7].strip() if len(row) > 7 and row[7].strip() else None
+    slot_link = row[8].strip() if len(row) > 8 and row[8].strip() else None
 
     dlcs = event_data.get("dlcs", {})
     if dlcs:
