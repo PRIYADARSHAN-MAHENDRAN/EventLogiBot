@@ -14,7 +14,7 @@ ist = pytz.timezone("Asia/Kolkata")
 now_utc = datetime.utcnow().replace(tzinfo=utc)
 now_ist = datetime.now(ist)
 
-print(f"Current time (UTC): {now_utc}")
+
 print(f"Current time (IST): {now_ist}")
 
 ROLE_ID = os.environ["ROLE_ID"]
@@ -34,7 +34,7 @@ try:
     sheet = client.open_by_key(os.environ["GOOGLE_SHEET_ID"])
     print(f"✅ Connected to Google Sheet ID: {os.environ['GOOGLE_SHEET_ID']}")
 except Exception as e:
-    print(f"❌ Failed to open Google Sheet: {e}")
+    print(f"❌ Failed to the open Google Sheet: {e}")
     exit(1)
 
 today = datetime.utcnow()
