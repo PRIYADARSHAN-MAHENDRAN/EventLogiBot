@@ -269,8 +269,8 @@ for idx, row in enumerate(data, start=1):
                     f"({event_data.get('arrive', {}).get('location', 'Unknown')})\n\n"
                     f"**🗺 DLC Req** : {dlc_display}\n\n"
                     f"**🪧 Slot Number** : {slot_no or 'N/A'}\n\n"
-                    f"**🪧 Truck Number** : {truck_no}\n\n"
-                    f"**🪧 Unique Code** : {unique_code}\n\n"
+                    f"**🚚 Truck Number** : {truck_no}\n\n"
+                    f"**🪪 Unique Code** : {unique_code}\n\n"
                     f"**Event**: {event_link}\n\n"
                     + (f"**Map**: {event_data.get('map')}\n\n" if event_data.get('map') else "Update soon!")
                     + (f"**Slot**: {slot_link}\n\n" if slot_link else "Update soon!")
