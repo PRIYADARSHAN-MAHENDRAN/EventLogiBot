@@ -172,12 +172,12 @@ print(f"Total rows fetched: {len(data)}")
 # =========================
 
 for idx, row in enumerate(data, start=1):
-    print(f"[Row {idx}] RAW LINK: {row[9]}")
+    print(f"[Row {idx}] RAW LINK: {row[11]}")
     if len(row) <= 9:
         print(f"[Row {idx}] ❌ Skipped: Not enough columns")
         continue
     
-    event_link = row[9].strip()
+    event_link = row[11].strip()
     
     if not event_link.startswith("https://truckersmp.com/events"):
         print(f"[Row {idx}] ❌ Skipped: Invalid event link -> {event_link}")
@@ -225,8 +225,11 @@ for idx, row in enumerate(data, start=1):
     print(f"[Row {idx}] 🎯 MATCH: Event is today!")
 
     # === Extract slot info from sheet ===
-    slot_no = row[7].strip() if len(row) > 7 and row[7].strip() else None
-    slot_link = row[8].strip() if len(row) > 8 and row[8].strip() else None
+    slot_no = row[9].strip() if len(row) > 9 and row[9].strip() else None
+    slot_link = row[10].strip() if len(row) > 10 and row[10].strip() else None
+
+    truck_no = row[7].strip() if len(row) > 7 and row[7].strip() else "Updated soon!"
+    unique_code = row[8].strip() if len(row) > 8 and row[8].strip() else "Updated soon!"
 
     dlcs = event_data.get("dlcs", {})
     if dlcs:
@@ -266,9 +269,11 @@ for idx, row in enumerate(data, start=1):
                     f"({event_data.get('arrive', {}).get('location', 'Unknown')})\n\n"
                     f"**🗺 DLC Req** : {dlc_display}\n\n"
                     f"**🪧 Slot Number** : {slot_no or 'N/A'}\n\n"
+                    f"**🪧 Truck Number** : {truck_no}\n\n"
+                    f"**🪧 Unique Code** : {unique_code}\n\n"
                     f"**Event**: {event_link}\n\n"
-                    + (f"**Map**: {event_data.get('map')}\n\n" if event_data.get('map') else "")
-                    + (f"**Slot**: {slot_link}\n\n" if slot_link else "")
+                    + (f"**Map**: {event_data.get('map')}\n\n" if event_data.get('map') else "Update soon!")
+                    + (f"**Slot**: {slot_link}\n\n" if slot_link else "Update soon!")
                     + "**💬 Thank You Message:**\n\n"
                     + f"💛 Thank you, {thank_you_name}. "
                       f"For inviting us to your {event_data.get('name', 'event')}. "
