@@ -272,8 +272,8 @@ for idx, row in enumerate(data, start=1):
                     f"**🚚 Truck Number** : {truck_no}\n\n"
                     f"**🪪 Unique Code** : {unique_code}\n\n"
                     f"**Event**: {event_link}\n\n"
-                    + (f"**Map**: {event_data.get('map')}\n\n" if event_data.get('map') else "Update soon!")
-                    + (f"**Slot**: {slot_link}\n\n" if slot_link else "Update soon!")
+                    + (f"**Map**: {event_data.get('map')}\n\n" if event_data.get('map') else "")
+                    + (f"**Slot**: {slot_link}\n\n" if slot_link else "")
                     + "**💬 Thank You Message:**\n\n"
                     + f"💛 Thank you, {thank_you_name}. "
                       f"For inviting us to your {event_data.get('name', 'event')}. "
