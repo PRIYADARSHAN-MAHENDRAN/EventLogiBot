@@ -1,8 +1,7 @@
 import os
 import json
 import gspread
-import requests
-import pytz
+
 from datetime import datetime, timedelta
 from dateutil import parser
 from oauth2client.service_account import ServiceAccountCredentials
